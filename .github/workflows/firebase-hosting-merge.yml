@@ -11,30 +11,30 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
-        - name: Install dependencies and build
-          run: |
-            yarn install
-            eas build --platform android
-        - name: Deploy to Firebase Hosting
-      # - name: Checkout code
-      #   uses: actions/checkout@v2
+        # - uses: actions/checkout@v2
+        # - name: Install dependencies and build
+        #   run: |
+        #     yarn install
+        #     eas build --platform android
+        # - name: Deploy to Firebase Hosting
+      - name: Checkout code
+        uses: actions/checkout@v2
       
-      # - name: 🏗 Setup EAS
-      #   uses: expo/expo-github-action@v8
-      #   with:
-      #     eas-version: latest
-      #     token: ${{ secrets.MIKE }}
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.MIKE }}
       
-      # - name: Install dependencies
-      #   run: |
-      #     yarn install
+      - name: Install dependencies
+        run: |
+          yarn install
 
-      # - name: Build project
-      #   run: |
-      #     eas build
-      # - uses: actions/checkout@v3
-      # - run: yarn install && npx expo start
+      - name: Build project
+        run: |
+          eas build --platform android
+      - uses: actions/checkout@v3
+      - run: yarn install && npx expo start
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'

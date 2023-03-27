@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
 import React, { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 // icons
 import Logo from '../assets/SVG/logo';
@@ -8,6 +9,17 @@ import Logo from '../assets/SVG/logo';
 export default function Signup() {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+
+    // const auth = getAuth();
+    // createUserWithEmailAndPassword(auth, mail, password)
+    // .then((userCredential) => {
+    //     const user = userCredential.user;
+    // })
+    // .catch((error) => {
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     console.log(errorCode, errorMessage);
+    // });
 
   return (
     <KeyboardAvoidingView 

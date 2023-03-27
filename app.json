@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "momCare2.0",
-    "slug": "momCare2.0",
+    "name": "momCare2",
+    "slug": "momCare2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

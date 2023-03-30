@@ -1,13 +1,37 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
 import React, { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../firebase';
 
-//icons
-import Logo from '../assets/SVG/logo';
+// icons
+import Logo from '../../assets/SVG/logo';
 
-export default function Login({ navigation }) {
+export default function Signup({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+
+    onAuthStateChanged(auth, (user) => {
+        if(user){
+            console.log(user.uid);
+            setMail('');
+            setPassword('');
+            navigation.navigate('Homescreen');
+        }
+    })
+
+    const handleSignin = () => {
+        createUserWithEmailAndPassword(auth, mail, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+        })
+        
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode, errorMessage);
+        });
+    }; 
 
   return (
     <KeyboardAvoidingView 
@@ -32,14 +56,14 @@ export default function Login({ navigation }) {
                 value={password}
                 onChangeText={ (text) => setPassword(text) }
                 secureTextEntry
-                style={password ? styles.input : styles.placeHolder}
+                style={[styles.placeHolder, password && styles.input]}
             />
             <TouchableOpacity
-                onPress={ () => navigation.navigate('Login') }
+                onPress={ () => handleSignin() }
                 style={[styles.button, styles.loginButton]}
                 
             >
-                <Text style={styles.loginText}>Login</Text>
+                <Text style={styles.loginText}>Signup</Text>
                 <MaterialCommunityIcons name="login-variant" size={24} color="white" />
             </TouchableOpacity>
         </View>
@@ -112,5 +136,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginRight: 10
     },
-
-})
+});

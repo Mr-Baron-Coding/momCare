@@ -1,12 +1,21 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React from 'react';
-import Logo from '../assets/SVG/logo';
+import React, { useEffect } from 'react';
+import Logo from '../../assets/SVG/logo';
 
 // material
 import { Divider } from '@rneui/base';
 
+// fonts
+import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
+
 
 export default function Homescreen({ navigation }) {
+    let [fontsLoaded] = useFonts({
+        Poppins_700Bold,
+    });
+    if (!fontsLoaded) {
+        return null;
+    };
   return (
     <View style={styles.container}>
         <View style={styles.header}>
@@ -15,7 +24,6 @@ export default function Homescreen({ navigation }) {
             <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
         </View>
         <View style={styles.body}>
-            {/* <Text>Welcome back!</Text> */}
             <TouchableOpacity
                 onPress={ () => navigation.navigate('Login') }
                 style={[styles.button, styles.loginButton]}
@@ -23,7 +31,6 @@ export default function Homescreen({ navigation }) {
             >
                 <Text style={styles.loginText}>Login</Text>
             </TouchableOpacity>
-            {/* <Text>Don't have an account? Come join our family</Text> */}
             <TouchableOpacity
                 onPress={ () => navigation.navigate('Signup') }
                 style={[styles.button, styles.signupButton]}
@@ -51,9 +58,7 @@ const styles = StyleSheet.create({
         height: '40%',
         backgroundColor: '#FFA299',
         justifyContent: 'center',
-        alignItems: 'center',
-        borderBottomColor: '#562349',
-        borderBottomWidth: 2
+        alignItems: 'center'
     },
     headerH1: {
         fontSize: 24,
@@ -85,7 +90,8 @@ const styles = StyleSheet.create({
     loginText: {
         color: '#FFFFFF',
         fontSize: 16,
-        fontWeight: '700'
+        // fontWeight: '700',
+        fontFamily: 'Poppins_700Bold'
     },
     signupButton: {
         backgroundColor: '#FFFFFF',
@@ -95,7 +101,7 @@ const styles = StyleSheet.create({
     signText: {
         color: '#562349',
         fontSize: 16,
-        fontWeight: '700'
+        fontFamily: 'Poppins_700Bold'
     },
     footer: {
         height: '10%',

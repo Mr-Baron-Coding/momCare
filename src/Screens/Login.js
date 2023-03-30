@@ -1,25 +1,38 @@
-import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { auth } from '../../firebase';
 
-// icons
-import Logo from '../assets/SVG/logo';
+//icons
+import Logo from '../../assets/SVG/logo';
 
-export default function Signup() {
+export default function Login({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
 
-    // const auth = getAuth();
-    // createUserWithEmailAndPassword(auth, mail, password)
-    // .then((userCredential) => {
-    //     const user = userCredential.user;
-    // })
-    // .catch((error) => {
-    //     const errorCode = error.code;
-    //     const errorMessage = error.message;
-    //     console.log(errorCode, errorMessage);
-    // });
+    onAuthStateChanged(auth, (user) => {
+        if(user){
+            console.log(user.uid);
+            setMail('');
+            setPassword('');
+            navigation.navigate('Homescreen');
+        }
+    })
+
+    const handleSigin = () => {
+        signInWithEmailAndPassword(auth, mail, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+        });
+    };
 
   return (
     <KeyboardAvoidingView 
@@ -44,14 +57,14 @@ export default function Signup() {
                 value={password}
                 onChangeText={ (text) => setPassword(text) }
                 secureTextEntry
-                style={password ? styles.input : styles.placeHolder}
+                style={[styles.placeHolder, password && styles.input]}
             />
             <TouchableOpacity
-                onPress={ () => navigation.navigate('Login') }
+                onPress={ () => handleSigin() }
                 style={[styles.button, styles.loginButton]}
                 
             >
-                <Text style={styles.loginText}>Signup</Text>
+                <Text style={styles.loginText}>Login</Text>
                 <MaterialCommunityIcons name="login-variant" size={24} color="white" />
             </TouchableOpacity>
         </View>
@@ -71,8 +84,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFA299',
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomColor: '#562349',
-        borderBottomWidth: 2
     },
     headerH1: {
         fontSize: 24,
@@ -124,4 +135,5 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginRight: 10
     },
-});
+
+})

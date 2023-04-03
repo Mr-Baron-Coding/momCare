@@ -1,26 +1,16 @@
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View, Text, FlatList } from 'react-native'
 import React from 'react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
 
-import { Wrap } from '@react-native-material/core';
+import FieldIcoons from '../Comps/FieldIcoons';
+import Reviews from '../Comps/Reviews';
+import News from '../Comps/News';
 
 //icons
 import Logo from '../../assets/SVG/logo';
-
-import Nut from '../../assets/SVG/nutritionist';
-import Lac from '../../assets/SVG/lac';
-import Sleep from '../../assets/SVG/sleep';
-import Doula from '../../assets/SVG/doula';
-import Osteopathy from '../../assets/SVG/osteopathy';
-import Acupuncture from '../../assets/SVG/acupuncture';
-import PostDula from '../../assets/SVG/pDula';
-import Reflo from '../../assets/SVG/reflo';
-import Homoyo from '../../assets/SVG/homoyphaty';
-import BabyDav from '../../assets/SVG/babydev';
-import PregSupport from '../../assets/SVG/pregsupport'
-import Presupport from '../../assets/SVG/presupport';
-
+// users icons
+import MailLogo from '../../assets/SVG/UserIcons/mail';
+import Search from '../../assets/SVG/UserIcons/search';
+import Heart from '../../assets/SVG/UserIcons/heart';
 
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
@@ -33,41 +23,29 @@ if (!fontsLoaded) {
     return null;
 };
 
-// const fieldsBox = () => {
-//   const fieldsArray = Array.from({ length: 12 }, (value, index) => index );
-//   return fieldsArray;
+const Data = [
+  { screen: <FieldIcoons />, id: 1 },
+  { screen: <Reviews />, id: 2 },
+  { screen: <News />, id: 3 },
+];
 
-// };
-const fieldsArray = Array.from([<Lac />, <BabyDav />,<Nut />, <Sleep />, <Doula />, <Osteopathy />, <Acupuncture />, <PostDula />, <Reflo />, <Homoyo />, <PregSupport />,<Presupport />]);
-
-
-  const handleClick = () => {
-    signOut(auth).then(() => {
-      console.log('Logged out');
-      navigation.navigate('Welcome')
-    }).catch((error) => {
-      console.log(error);
-    });
-  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <View style={styles.navIcons}>
+          <MailLogo />
+          <Search />
+          <Heart />
+        </View>  
         <Logo />
-        {/* <Text>Homescreen</Text> */}
       </View>
-      <View style={styles.body}>
-        <Text style={styles.bodyHeader}>All fields of care</Text>
-        {/* <View style={styles.bodyFields}> */}
-        <Wrap m={4} spacing={5} items='center' style={{ width: '100%', justifyContent:'center'}}>
-          { fieldsArray.map(item => {
-            return (
-              <View style={styles.fieldItems}>
-                {item}
-              </View>
-            )
-          })}
-        </Wrap>
-        <Button title='Logout' onPress={ () => handleClick() } />
+      <FlatList style={styles.body}
+        data={Data}
+        renderItem={({item}) => item.screen}
+        keyExtractor={item => item.id}
+      />
+      <View style={styles.footer}>
+       <Text>Footer</Text> 
       </View>
     </View>
   )
@@ -76,7 +54,8 @@ const fieldsArray = Array.from([<Lac />, <BabyDav />,<Nut />, <Sleep />, <Doula 
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#FFFFFF',
+        
     },
     header: {
       backgroundColor: '#FFA299',
@@ -84,26 +63,26 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       height: '15%'
     },
-    body: {
-      height: '70%',
-      
-      // justifyContent: 'center',
-      // alignItems: 'center'
-    },
-    bodyHeader: {
-      fontFamily: 'Poppins_700Bold', 
-      color: '#562349',
-      height: '5%'
-    },
-    bodyFields: {
-      height: '95%'
-    },
-    fieldItems: {
-      borderColor: '#C4A7B5',
+    navIcons: {
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 1,
-      height: 100,
-      width: 100
-    }
+      position: 'absolute',
+      width: '30%',
+      height: '30%',
+      right: 0,
+      top: 5,
+      flexDirection: 'row'
+    },
+    body: {
+      marginHorizontal: 15,
+      marginVertical: 10,
+      // overflow: 'scroll'
+    },
+    footer: {
+      height: '10%',
+      backgroundColor: '#F7F7F7',
+      flexDirection: 'row',
+      alignItems: 'center', 
+      justifyContent: 'space-around'
+  }
 });

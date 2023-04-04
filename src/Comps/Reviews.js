@@ -59,6 +59,7 @@ export default function Reviews() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
+        flex: 1
     },
     bodyHeader: {
         fontFamily: 'Poppins_700Bold', 

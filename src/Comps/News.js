@@ -3,7 +3,17 @@ import React from 'react';
 
 import Placeholder from '../../assets/Images/newsPlaceholder.png';
 
+// fonts
+import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
+
 export default function News() {
+    let [fontsLoaded] = useFonts({
+        Poppins_700Bold,
+    });
+    if (!fontsLoaded) {
+        return null;
+    };
+
     const articalList = [
         { header: 'Animal instinct?', body: 'Breastfeeding, why is it not always works, and how does nature know how to cope...', pic: '', id: 0 },
         { header: 'Sooo sleepy......', body: "Sleep problems are a common thing after giving birth, but you can't blameit all on the baby...", pic: '', id: 1 },
@@ -16,14 +26,15 @@ export default function News() {
                 <Image
                     style={{
                         resizeMode: 'cover',
-                        height: 150,
-                        aspectRatio: '1/1'
+                        width: '25%',
+                        aspectRatio: '3/5'
                     }}
                     source={Placeholder}
                 />
-                <View>
-                    <Text>{item.header}</Text>
-                    <Text>{item.body}</Text>
+                <View style={styles.artiContainer}>
+                    <Text style={styles.artiHeader}>{item.header}</Text>
+                    <Text style={styles.artiContent}>{item.body}</Text>
+                    <Text style={styles.artiRead}>{`Read more >`}</Text>
                 </View>
             </View>
         )
@@ -31,7 +42,7 @@ export default function News() {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.bodyHeader}>All fields of care</Text>
+        <Text style={styles.bodyHeader}>Content and articles</Text>
         <FlatList 
             data={articalList}
             renderItem={({item}) => <ArtiCard item={item} />}
@@ -44,6 +55,7 @@ export default function News() {
 const styles = StyleSheet.create({
     container: {
         textAlign: 'left',
+        flex: 1
     },
     bodyHeader: {
         fontFamily: 'Poppins_700Bold', 
@@ -54,11 +66,40 @@ const styles = StyleSheet.create({
     artiCard: {
         width: '95%',
         aspectRatio: '19/8',
-        borderColor: 'black',
-        borderWidth: 2,
-        borderRadius: 30,
+        borderColor: '#C4A7B5',
+        borderWidth: 1,
+        borderRadius: 10,
         marginVertical: 20,
         flexDirection: 'row',
-        overflow: 'hidden'
+        overflow: 'hidden',
+    },
+    artiContainer: {
+        paddingHorizontal: 10,
+        width: '100%',
+        // lineHeight: 20,
+        overflow: 'visible',
+        flexWrap: 'nowrap',
+        flexShrink: 1
+    },
+    artiHeader: {
+        fontFamily: 'Poppins_700Bold',
+        fontSize: 16,
+        fontWeight: 600,
+        color: '#562349',
+        lineHeight: 30
+    },
+    artiContent: {
+        fontFamily: 'Poppins_700Bold',
+        fontSize: 12,
+        fontWeight: 100,
+        color: '#562349',
+        lineHeight: 20
+    },
+    artiRead: {
+        position: 'absolute',
+        bottom: 5,
+        right: 5,
+        fontSize: 10,
+        fontWeight: 100,
     }
 })

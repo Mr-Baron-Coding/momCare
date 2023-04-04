@@ -4,6 +4,8 @@ import React from 'react';
 import FieldIcoons from '../Comps/FieldIcoons';
 import Reviews from '../Comps/Reviews';
 import News from '../Comps/News';
+import Map from './Map';
+import Footer from '../Comps/Footer';
 
 //icons
 import Logo from '../../assets/SVG/logo';
@@ -27,6 +29,8 @@ const Data = [
   { screen: <FieldIcoons />, id: 1 },
   { screen: <Reviews />, id: 2 },
   { screen: <News />, id: 3 },
+  { screen: <Map />, id: 4 },
+  { screen: <Footer />, id: 5 },
 ];
 
   return (
@@ -44,16 +48,17 @@ const Data = [
         renderItem={({item}) => item.screen}
         keyExtractor={item => item.id}
       />
-      <View style={styles.footer}>
+      {/* <View style={styles.footer}>
        <Text>Footer</Text> 
-      </View>
+      </View> */}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
+        // height: '100%',
+        flex: 1,
         backgroundColor: '#FFFFFF',
         
     },
@@ -77,12 +82,5 @@ const styles = StyleSheet.create({
       marginHorizontal: 15,
       marginVertical: 10,
       // overflow: 'scroll'
-    },
-    footer: {
-      height: '10%',
-      backgroundColor: '#F7F7F7',
-      flexDirection: 'row',
-      alignItems: 'center', 
-      justifyContent: 'space-around'
-  }
+    }
 });

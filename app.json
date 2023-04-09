@@ -11,6 +11,21 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "plugins": [
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "pk.eyJ1IjoibXJiYXJvbiIsImEiOiJjbGc1enUyOWcwOG12M2ZxaXdpZnJ2eHRnIn0.gEgut6a7LRlTeCAZFaxmQw"
+        }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "maplibre"
+        }
+      ]
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],

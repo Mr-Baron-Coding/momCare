@@ -1,12 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 // import Mapbox from '@rnmapbox/maps';
-import mapboxgl from '!mapbox-gl';
+import mapboxgl from 'mapbox-gl';
 
 // Mapbox.setAccessToken('pk.eyJ1IjoibXJiYXJvbiIsImEiOiJjbGc1enUyOWcwOG12M2ZxaXdpZnJ2eHRnIn0.gEgut6a7LRlTeCAZFaxmQw');
 mapboxgl.accessToken = 'pk.eyJ1IjoibXJiYXJvbiIsImEiOiJjbGc1enUyOWcwOG12M2ZxaXdpZnJ2eHRnIn0.gEgut6a7LRlTeCAZFaxmQw';
 
-export default function Map() {
+export default function Map({ navigation }) {
     const mapContainer = useRef(null);
         const map = useRef(null);
         const [lng, setLng] = useState(34.799);
@@ -23,20 +23,12 @@ export default function Map() {
         });
     });
 
-
-    // mapboxgl.accessToken = 'pk.eyJ1IjoibXJiYXJvbiIsImEiOiJjbDI3emtkajEwNGhlM2NxcmN6NjN2enZzIn0.dxCXu5SE7PngpB5BeVmDoA';
-    // mapboxgl.baseApiUrl = 'https://api.mapbox.com';
-    // const map = new mapboxgl.Map({
-    //     container: 'map',
-    //     style: 'mapbox://styles/mapbox/streets-v12',
-    //     center: [-74.5, 40],
-    //     zoom: 9,
-    // })
   return (
     <View>
-      <Text>Map</Text>
+        <TouchableOpacity onPress={ () => navigation.navigate('Homescreen') }>
+            <Text>Map</Text>
+        </TouchableOpacity>    
       <View ref={mapContainer} style={styles.mapContainer} className="map-container"></View>
-      {/* <Mapbox.MapView style={styles.map} /> */}
     </View>
   )
 }
@@ -44,8 +36,11 @@ export default function Map() {
 const styles = StyleSheet.create({
     map: {
         flex: 1
-      },
-      mapContainer: {
+    },
+    mapContainer: {
         height: 400
-      }
+    },
+    sidebar: {
+
+    }
 });

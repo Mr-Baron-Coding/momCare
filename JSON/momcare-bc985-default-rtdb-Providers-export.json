@@ -1,0 +1,23 @@
+[
+  {
+    "fields": [
+      "Osteopathy",
+      "Birth Doula"
+    ],
+    "location": "Tel Aviv",
+    "mail": "12@12.com",
+    "name": "Alex",
+    "phone": 123,
+    "review": "4/5"
+  },
+  {
+    "fields": [
+      "Nutritionists"
+    ],
+    "location": "Jerusalem",
+    "mail": "mike@mike.com",
+    "name": "Mike",
+    "phone": 235,
+    "review": "4.5/5"
+  }
+]

@@ -54,6 +54,7 @@ export default function News() {
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: '#FFFFFF',
         textAlign: 'left',
         flex: 1
     },

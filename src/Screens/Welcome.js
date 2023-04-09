@@ -7,6 +7,7 @@ import { Divider } from '@rneui/base';
 
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
+import Footer from '../Comps/Footer';
 
 
 export default function Homescreen({ navigation }) {
@@ -38,13 +39,7 @@ export default function Homescreen({ navigation }) {
                 <Text style={styles.signText}>Create account</Text>
             </TouchableOpacity>
         </View>
-        <View style={styles.footer}>
-            <Text>Feedback</Text>
-                <Divider width={3} color={'#562349'} style={{ marginVertical: 20, height: '70%' }} orientation="vertical" />
-            <Text>Regulations</Text>
-                <Divider width={3} color={'#562349'} style={{ marginVertical: 20, height: '70%' }} orientation="vertical" />
-            <Text>Privacy Policy</Text>
-        </View>
+        <Footer />
     </View>
   )
 }
@@ -52,28 +47,34 @@ export default function Homescreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#FAFAFA'
     },
     header: {
-        height: '40%',
+        // height: '30%',
+        flex: 1,
         backgroundColor: '#FFA299',
         justifyContent: 'center',
         alignItems: 'center'
     },
     headerH1: {
+        fontFamily: 'Quicksand',
+        fontWeight: '700',
+        color: '#FFE8E5',
         fontSize: 24,
         lineHeight: 40,
-        color: 'white',
     },
     headerH2: {
+        fontFamily: 'Quicksand',
         fontSize: 16,
         lineHeight: 30,
         color: 'white'
     },
     body: {
-        height: '50%',
+        // height: '50%',
+        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF'
     },
     button: {
         elevation: 8,
@@ -103,11 +104,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'Poppins_700Bold'
     },
-    footer: {
-        height: '10%',
-        backgroundColor: '#F7F7F7',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around'
-    }
 });

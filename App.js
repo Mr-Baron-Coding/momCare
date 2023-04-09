@@ -7,6 +7,7 @@ import Login from './src/Screens/Login';
 import Signup from './src/Screens/Signup';
 import Homescreen from './src/Screens/Homescreen';
 import Map from './src/Screens/Map';
+import Searchresults from './src/Screens/Searchresults';
 
 //icons
 import Logo from './assets/SVG/logo';
@@ -22,6 +23,7 @@ export default function App() {
         <Stack.Screen options={{ headerShown: false }} name="Signup" component={Signup} />
         <Stack.Screen options={{ headerShown: false }} name="Homescreen" component={Homescreen} />
         <Stack.Screen options={{ headerShown: false }} name="Map" component={Map} />
+        <Stack.Screen options={{ headerShown: false }} name="Searchresults" component={Searchresults} />
       </Stack.Navigator>
     </NavigationContainer>
   );

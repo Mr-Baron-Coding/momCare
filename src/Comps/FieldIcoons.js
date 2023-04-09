@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
 import { Wrap } from '@react-native-material/core';
+import { useNavigation } from '@react-navigation/native';
 
 //icons
 import Nut from '../../assets/SVG/nutritionist';
@@ -22,21 +21,13 @@ import Presupport from '../../assets/SVG/presupport';
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
 export default function FieldIcoons() {
+  const navigation = useNavigation();
     let [fontsLoaded] = useFonts({
         Poppins_700Bold,
     });
     if (!fontsLoaded) {
         return null;
     };
-
-    const handleClick = () => {
-        signOut(auth).then(() => {
-          console.log('Logged out');
-          navigation.navigate('Welcome')
-        }).catch((error) => {
-            console.log(error);
-        });
-    }
 
     const fieldsArray = Array.from([
         {logo: <Lac />, name: 'Lactation consultant'}, 
@@ -54,44 +45,50 @@ export default function FieldIcoons() {
       ]);
 
   return (
-    <View>
+    <View style={styles.container}>
       <Text style={styles.bodyHeader}>All fields of care</Text>
         <Wrap m={4} spacing={5} items='center' style={{ width: '100%', justifyContent:'center'}}>
           { fieldsArray.map((item, i) => {
             return (
-              <View key={i} style={styles.fieldItems}>
+              <TouchableOpacity 
+                key={i} 
+                style={styles.fieldItems} 
+                onPress={ () => navigation.navigate('Searchresults', { id: i, name: item.name }) }
+              >
                 {item.logo}
                 <Text style={styles.Fieldheader}>{item.name}</Text>
-              </View>
+              </TouchableOpacity>
             )
           })}
         </Wrap>
-        {/* <Button title='Logout' onPress={ () => handleClick() } /> */}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-    bodyHeader: {
-        fontFamily: 'Poppins_700Bold', 
-        color: '#562349',
-        height: '5%',
-        marginTop: 10,
-        marginBottom: 10
-    },
-    fieldItems: {
-        borderColor: '#C4A7B5',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
-        height: 100,
-        width: 100,
-        borderRadius: 10,
-    
-    },
-    Fieldheader: {
-        fontFamily: 'Poppins_700Bold',
-        fontSize: 10,
-        color: '#AD6989',
-    },
+  container: {
+    backgroundColor: '#FFFFFF'
+  },
+  bodyHeader: {
+      fontFamily: 'Poppins_700Bold', 
+      color: '#562349',
+      height: '5%',
+      marginTop: 10,
+      marginBottom: 10
+  },
+  fieldItems: {
+      borderColor: '#C4A7B5',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2.5,
+      height: 100,
+      width: 100,
+      borderRadius: 10,
+  
+  },
+  Fieldheader: {
+      fontFamily: 'Poppins_700Bold',
+      fontSize: 8,
+      color: '#AD6989',
+  },
 });

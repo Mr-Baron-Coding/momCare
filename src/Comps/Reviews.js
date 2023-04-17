@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 // images
 import UserPic from '../../assets/Images/placeholder.jpg';
@@ -8,13 +9,18 @@ import Stars from '../../assets/SVG/Stars';
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
-export default function Reviews() {
+export default function Reviews({ providersData }) {
+    const navigation = useNavigation();
     let [fontsLoaded] = useFonts({
         Poppins_700Bold,
     });
     if (!fontsLoaded) {
         return null;
     };
+
+    // useEffect(() => {
+    //     console.log(providersData);
+    // },[providersData])
 
     const proList = [
         { name: 'Mike', profession: 'a', location: 's', pic: '', stars: '' },
@@ -25,7 +31,7 @@ export default function Reviews() {
 
     const ProCard = ({ item }) => {
         return(
-            <View style={styles.profCard}>
+            <TouchableOpacity style={styles.profCard} onPress={ () => navigation.navigate('ProviderDetail', item ) }>
                 <Image 
                     style={{
                         resizeMode: 'cover',
@@ -39,7 +45,7 @@ export default function Reviews() {
                 <Text style={styles.bodyHeader}>Profession</Text>
                 <Text style={styles.bodyHeader}>Location</Text>
                 <Stars />
-            </View>
+            </TouchableOpacity>
         )
     }
 
@@ -47,7 +53,7 @@ export default function Reviews() {
     <View style={styles.container}>
         <Text style={styles.bodyHeader}>Recent reviews</Text>
         <FlatList 
-            data={proList}
+            data={providersData}
             renderItem={({item}) => <ProCard item={item} />}
             keyExtractor={(item, i) => i}
             horizontal={true}

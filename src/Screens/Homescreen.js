@@ -1,5 +1,8 @@
 import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+import { getDatabase, ref, child, get } from "firebase/database";
+import { database } from '../../firebase';
 
 import FieldIcoons from '../Comps/FieldIcoons';
 import Reviews from '../Comps/Reviews';
@@ -21,16 +24,33 @@ import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
 export default function Homescreen({ navigation }) {
   const [menuWindow, setMenu] = useState(false);
+
+  const [providersData, setData] = useState([]);
+
+    useEffect(() => {
+        const dbRef = ref(database);
+        get(child(dbRef, 'data/Providers')).then((snapshot) => {
+            if (snapshot.exists()) {
+              console.log(snapshot.val());
+              setData(snapshot.val());
+            } else {
+              console.log("No data available");
+            }
+        }).catch((error) => {
+        console.error(error);
+        });
+    },[])
+
   let [fontsLoaded] = useFonts({
     Poppins_700Bold,
-});
-if (!fontsLoaded) {
-    return null;
-};
+    });
+    if (!fontsLoaded) {
+        return null;
+  };
 
 const Data = [
   { screen: <FieldIcoons />, id: 1 },
-  { screen: <Reviews />, id: 2 },
+  { screen: <Reviews providersData={providersData} />, id: 2 },
   { screen: <News />, id: 3 },
   // { screen: <Map />, id: 4 },
   { screen: <Footer />, id: 4 },

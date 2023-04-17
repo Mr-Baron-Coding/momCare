@@ -53,7 +53,7 @@ export default function FieldIcoons() {
               <TouchableOpacity 
                 key={i} 
                 style={styles.fieldItems} 
-                onPress={ () => navigation.navigate('Searchresults', { id: i, name: item.name }) }
+                onPress={ () => navigation.navigate('Searchresults', { name: item.name }) }
               >
                 {item.logo}
                 <Text style={styles.Fieldheader}>{item.name}</Text>

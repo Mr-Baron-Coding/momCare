@@ -1,16 +1,13 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import Header from '../Comps/Header';
-import { color } from '@rneui/base';
+import About from '../Comps/ProfileAbout';
+import Review from '../Comps/ProfileReviews';
 
 export default function ProviderDetailScreen({ route }) {
-    const { fields } = route.params;
+    const { area, fields, about, qualification } = route.params;
     const [tabScreen, setScreen] = useState(1);
-
-    useEffect(() => {
-        console.log(route.params);
-    },[route]);
 
   return (
     <View style={styles.mainContainer}>
@@ -20,7 +17,7 @@ export default function ProviderDetailScreen({ route }) {
                 <FlatList 
                     data={fields}
                     renderItem={({item}) => <Text style={styles.textStyling}>{item}</Text>}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item, id) => id}
                     
                 />
             <TouchableOpacity style={styles.buttonContainer}>
@@ -29,12 +26,13 @@ export default function ProviderDetailScreen({ route }) {
             </View>
             <View style={styles.selectTabs}>
                 <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(1) }>
-                    <Text style={[{ fontFamily: 'Poppins_700Bold' }, { width: '90%', textAlign: 'center', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 }]}>Profile</Text>
+                    <Text style={[tabScreen === 1 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
-                    <Text style={{ fontFamily: 'Quicksand', width: '90%', color: '#562349', textAlign: 'center', }}>Reviews</Text>
+                    <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
                 </TouchableOpacity>
             </View>
+            {tabScreen === 1 ? <About about={about} fields={fields} qualification={qualification} area={area} /> : <Review />}
         </View>
     </View>
   )
@@ -77,6 +75,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignItems: 'center',
         marginTop: 15,
+        height: 25
     }
 });
 

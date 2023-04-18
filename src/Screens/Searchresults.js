@@ -4,6 +4,7 @@ import Header from '../Comps/Header';
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 import { getDatabase, ref, child, get } from "firebase/database";
 import { database } from '../../firebase';
+import { useNavigation } from '@react-navigation/native';
 
 // images
 import Placeholder from '../../assets/Images/placeholder.jpg';
@@ -12,6 +13,7 @@ import Placeholder from '../../assets/Images/placeholder.jpg';
 import Heart from '../../assets/SVG/UserIcons/heart';
 
 export default function Searchresults({ route }) {
+    const navigation = useNavigation();
     const { name } = route.params;
     const [providersData, setData] = useState([])
 
@@ -40,7 +42,7 @@ export default function Searchresults({ route }) {
         return (
             <View style={styles.cardContainer}>
                 <View style={styles.cardTextTop}>
-                    <TouchableOpacity style={styles.pressContainer}>
+                    <TouchableOpacity style={styles.pressContainer} onPress={ () => navigation.navigate('ProviderDetail', item ) }>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Image
                                 style={{

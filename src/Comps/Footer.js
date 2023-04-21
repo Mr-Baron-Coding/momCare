@@ -35,6 +35,7 @@ export default function Footer() {
 const styles = StyleSheet.create({
     footer: {
         // height: 200,
+        justifyContent: 'space-between',
         flex: 1,
         width: '100%',
         alignItems: 'center',
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
         fontWeight: '300',
         fontSize: 12,
         color: '#562349',
-        height: '30%',
+        // height: '30%',
         width: '90%',
         flexDirection: 'row',
         alignItems: 'center', 

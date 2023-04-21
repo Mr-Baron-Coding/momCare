@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import Header from '../Comps/Header';
 import About from '../Comps/ProfileAbout';
 import Review from '../Comps/ProfileReviews';
+import Footer from '../Comps/Footer';
 
 export default function ProviderDetailScreen({ route }) {
-    const { area, fields, about, qualification } = route.params;
+    const { area, contact, fields, about, qualification, reviewsList } = route.params;
     const [tabScreen, setScreen] = useState(1);
 
   return (
@@ -32,8 +33,12 @@ export default function ProviderDetailScreen({ route }) {
                     <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
                 </TouchableOpacity>
             </View>
-            {tabScreen === 1 ? <About about={about} fields={fields} qualification={qualification} area={area} /> : <Review />}
+            {tabScreen === 1 
+                ? <About about={about} fields={fields} qualification={qualification} area={area} contact={contact} /> 
+                : <Review reviewsList={reviewsList} />
+            }
         </View>
+        <Footer />
     </View>
   )
 }

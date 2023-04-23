@@ -1,8 +1,11 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebase';
+
+import { ref, child, get } from "firebase/database";
+import { database } from '../../firebase';
 
 //icons
 import Logo from '../../assets/SVG/logo';
@@ -10,22 +13,58 @@ import Logo from '../../assets/SVG/logo';
 export default function Login({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+    
+    let locatUser = [];
+
+    // useEffect(() => {
+    //     const dbRef = ref(database);
+    //     get(child(dbRef, 'data/Providers')).then((snapshot) => {
+    //         if (snapshot.exists()) {
+    //         //   console.log(snapshot.val());
+    //           locatUser = snapshot.val();
+    //         //   setData(snapshot.val());
+    //         console.log(locatUser);
+    //         } else {
+    //           console.log("No data available");
+    //         }
+    //     }).catch((error) => {
+    //     console.error(error);
+    //     });
+    // },[]);
+
+    const checkUser = async () => {
+        const dbRef = ref(database);
+        await get(child(dbRef, 'data/Providers')).then((snapshot) => {
+            if (snapshot.exists()) {
+              locatUser = snapshot.val();
+            } else {
+              console.log("No data available");
+            }
+        }).catch((error) => {
+        console.error(error);
+        });
+        let arr = locatUser.forEach(item => item.contact.filter(mailFielld => mailFielld === mail));
+        console.log(arr);
+        navigation.navigate('Homescreen');
+
+    };
 
     onAuthStateChanged(auth, (user) => {
         if(user){
-            console.log(user.uid);
             setMail('');
             setPassword('');
-            navigation.navigate('Homescreen');
+            checkUser();
+            // let arr = locatUser.filter((item) => item.contact[1] === mail);
+            // console.log('arr');
+            // navigation.navigate('Homescreen');
         }
     })
 
     const handleSigin = () => {
-        signInWithEmailAndPassword(auth, mail, password)
+        signInWithEmailAndPassword(auth, mail, password)            
         .then((userCredential) => {
+            checkUser();
           const user = userCredential.user;
-          console.log(user);
-
         })
         .catch((error) => {
           const errorCode = error.code;

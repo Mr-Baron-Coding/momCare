@@ -6,13 +6,13 @@ import About from '../Comps/ProfileAbout';
 import Review from '../Comps/ProfileReviews';
 import Footer from '../Comps/Footer';
 
-export default function ProviderDetailScreen({ route }) {
+export default function ProviderDetailScreen({ navigation, route }) {
     const { area, contact, fields, about, qualification, reviewsList } = route.params;
     const [tabScreen, setScreen] = useState(1);
 
   return (
     <View style={styles.mainContainer}>
-        <Header showSearch={false} showProfile={true} route={route} heightVar={20} />
+        <Header showSearch={false} showProfile={true} messHeader={false} route={route} heightVar={20} heightProp={200} />
         <View style={styles.bodyContainer}>
             <View style={styles.filedsContainer}>
                 <FlatList 
@@ -21,7 +21,7 @@ export default function ProviderDetailScreen({ route }) {
                     keyExtractor={(item, id) => id}
                     
                 />
-            <TouchableOpacity style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={ () => navigation.navigate('Message', route.params) }>
                 <Text style={styles.buttonText}>Message</Text>
             </TouchableOpacity>
             </View>
@@ -32,6 +32,9 @@ export default function ProviderDetailScreen({ route }) {
                 <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
                     <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
                 </TouchableOpacity>
+                {/* <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(3) }>
+                    <Text style={[tabScreen === 3 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Messages</Text>
+                </TouchableOpacity> */}
             </View>
             {tabScreen === 1 
                 ? <About about={about} fields={fields} qualification={qualification} area={area} contact={contact} /> 
@@ -51,7 +54,7 @@ const styles = StyleSheet.create({
         paddingTop: 50,
     },
     filedsContainer: {
-        paddingHorizontal: 15
+        paddingHorizontal: 20
     },
     textStyling: {
         fontFamily: 'Quicksand',

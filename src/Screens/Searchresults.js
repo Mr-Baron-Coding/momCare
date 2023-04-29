@@ -79,7 +79,7 @@ export default function Searchresults({ route }) {
 
   return (
     <View>
-        <Header showSearch={true} route={route} heightVar={20} />
+        <Header showSearch={true} route={route} heightVar={20} heightProp={200} />
         <View>
             <Text style={styles.bodyHeader}>{name}</Text>
         <FlatList 

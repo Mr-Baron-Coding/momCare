@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { ref, set, get, child } from 'firebase/database';
+import { auth, database } from '../../firebase';
 
 // icons
 import Logo from '../../assets/SVG/logo';
@@ -10,22 +11,20 @@ import Logo from '../../assets/SVG/logo';
 export default function Signup({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
-
-    onAuthStateChanged(auth, (user) => {
-        if(user){
-            console.log(user.uid);
-            setMail('');
-            setPassword('');
-            navigation.navigate('Homescreen');
-        }
-    })
+    const [userType, setType] = useState(false);
 
     const handleSignin = () => {
         createUserWithEmailAndPassword(auth, mail, password)
         .then((userCredential) => {
             const user = userCredential.user;
+    
+            set(ref(database, 'users/' + user.uid), {
+                email: mail,
+                userID: user.uid,
+                usertype: userType ? 'Provider' : 'Customer'
+            })
         })
-        
+        .then(() => { userType ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen') })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -58,6 +57,10 @@ export default function Signup({ navigation }) {
                 secureTextEntry
                 style={[styles.placeHolder, password && styles.input]}
             />
+            <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity onPress={ () => setType(false) }><Text>User</Text></TouchableOpacity>
+                <TouchableOpacity onPress={ () => setType(true) }><Text>Provider</Text></TouchableOpacity>
+            </View>
             <TouchableOpacity
                 onPress={ () => handleSignin() }
                 style={[styles.button, styles.loginButton]}
@@ -137,3 +140,29 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
 });
+
+// useEffect(() => {
+    //     const listener = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             console.log(user);
+    //             get(child(database, `users/${user.uid}`)).then((snapshot) => {
+    //                 if (snapshot.exists()) {
+    //                     console.log(snapshot.val());
+    //                 }
+    //                 else {
+    //                     console.log("No data available");
+    //                 }
+    //             })
+    //             .catch((error) => {
+    //                 console.error(error);
+    //               });
+    //         }
+    //     }) 
+
+    //     return () => listener();
+    //     // if (!isLoading && !authUser) {
+    //     //     navigation.navigate('Homescreen');
+    //     // }
+    //     // console.log(isLoading, authUser);
+    // }, [])
+    

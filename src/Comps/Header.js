@@ -11,7 +11,7 @@ import Mail from '../../assets/SVG/UserIcons/mail';
 import Back from '../../assets/SVG/UserIcons/back';
 
 
-export default function Header({ showSearch, showProfile, route, heightVar }) {
+export default function Header({ showSearch, showProfile, messHeader, route, heightVar, heightProp }) {
     const navigation = useNavigation();
     const [field, setField] = useState('');
     const [location, setLocation] = useState('');
@@ -56,16 +56,24 @@ export default function Header({ showSearch, showProfile, route, heightVar }) {
                 />
             </View>
         )
-    }
+    };
+
+    const messageHeader = () => {
+        return (
+            <View>
+                <Text style={{ fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF', paddingHorizontal: 20 }}>{name}</Text>
+            </View>
+        )
+    };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {height: heightProp}]}>
         <View style={styles.logoContainer}>
             <Logo height={heightVar} />
             <View style={styles.buttonContainer}>
                 <Mail />
-                <Search />
-                <Heart />
+                { !messHeader && <Search /> }
+                { !messHeader && <Heart /> }
                 <Menu />
             </View>
             <TouchableOpacity style={styles.backContainer} onPress={ () => navigation.goBack() }>
@@ -75,6 +83,7 @@ export default function Header({ showSearch, showProfile, route, heightVar }) {
         <View style={styles.searchContainer}>
             {showSearch && searchBox()}
             {showProfile && profileHeader()}
+            {messHeader && messageHeader()}
         </View>
     </View>
   )
@@ -85,7 +94,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFA299',
         justifyContent: 'space-between',
         // alignItems: 'center',
-        height: 200,
+        // height: 200,
     },
     logoContainer: {
         justifyContent: 'flex-end',

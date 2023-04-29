@@ -4,67 +4,48 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebase';
 
-import { ref, child, get } from "firebase/database";
+import { getDatabase, ref, child, get, once } from "firebase/database";
 import { database } from '../../firebase';
 
 //icons
 import Logo from '../../assets/SVG/logo';
 
-export default function Login({ navigation }) {
+export default function Login({ navigation, extraData }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
-    
-    let locatUser = [];
 
-    // useEffect(() => {
-    //     const dbRef = ref(database);
-    //     get(child(dbRef, 'data/Providers')).then((snapshot) => {
-    //         if (snapshot.exists()) {
-    //         //   console.log(snapshot.val());
-    //           locatUser = snapshot.val();
-    //         //   setData(snapshot.val());
-    //         console.log(locatUser);
-    //         } else {
-    //           console.log("No data available");
-    //         }
-    //     }).catch((error) => {
-    //     console.error(error);
-    //     });
-    // },[]);
-
-    const checkUser = async () => {
-        const dbRef = ref(database);
-        await get(child(dbRef, 'data/Providers')).then((snapshot) => {
-            if (snapshot.exists()) {
-              locatUser = snapshot.val();
-            } else {
-              console.log("No data available");
-            }
-        }).catch((error) => {
-        console.error(error);
-        });
-        let arr = locatUser.forEach(item => item.contact.filter(mailFielld => mailFielld === mail));
-        console.log(arr);
-        navigation.navigate('Homescreen');
-
-    };
-
-    onAuthStateChanged(auth, (user) => {
-        if(user){
-            setMail('');
-            setPassword('');
-            checkUser();
-            // let arr = locatUser.filter((item) => item.contact[1] === mail);
-            // console.log('arr');
-            // navigation.navigate('Homescreen');
-        }
-    })
+    useEffect(() => {
+        // console.log(auth.currentUser);
+        auth.currentUser && get(ref(database, `users/${auth.currentUser.uid}`)).then((snapshot) => {
+              if (snapshot.exists()) {
+                console.log("User is authenticated and exists in the database");
+                // console.log(snapshot.val())
+                const data = snapshot.val();
+                snapshot.val().usertype === 'Provider' ? navigation.navigate('ProviderHomeScreen', {data: snapshot.val()}) : navigation.navigate('Homescreen');
+                // console.log(snapshot.val()/userType);
+              } else {
+                console.log("User is authenticated but does not exist in the database");
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+    }, []);
 
     const handleSigin = () => {
         signInWithEmailAndPassword(auth, mail, password)            
         .then((userCredential) => {
-            checkUser();
           const user = userCredential.user;
+          const dbRef = ref(getDatabase());
+            get(child(dbRef, `users/`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                snapshot.val().usertype === 'Provider' ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen');
+            } else {
+                console.log("No data available");
+            }
+            }).catch((error) => {
+                console.error(error);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;

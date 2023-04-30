@@ -14,7 +14,7 @@ import Back from '../../assets/SVG/UserIcons/back';
 //fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
-export default function ProviderHeader({ data }) {
+export default function ProviderHeader() {
     
   let [fontsLoaded] = useFonts({
     Poppins_700Bold,
@@ -36,7 +36,7 @@ export default function ProviderHeader({ data }) {
             </TouchableOpacity>
         </View>
         <View style={styles.hiTextContainer}>
-            <Text style={styles.hiText}>Hi {data.email}</Text>
+            {/* <Text style={styles.hiText}>Hi {data.email}</Text> */}
         </View>
     </View>
   )
@@ -69,10 +69,12 @@ const styles = StyleSheet.create({
         top: 15
     },
     hiTextContainer: {
-        marginHorizontal: 20
+        marginHorizontal: 20,
+        paddingBottom: 10
     },
     hiText: {
-        fontFamily: 'Poppins_700Bold',
+        fontFamily: 'Quicksand',
+        fontWeight: '700',
         fontSize: 16,
         color: '#FFFFFF'
     }

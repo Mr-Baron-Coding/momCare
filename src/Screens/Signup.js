@@ -21,7 +21,9 @@ export default function Signup({ navigation }) {
             set(ref(database, 'users/' + user.uid), {
                 email: mail,
                 userID: user.uid,
-                usertype: userType ? 'Provider' : 'Customer'
+                usertype: userType ? 'Provider' : 'Customer',
+                about: userType && 'add',
+
             })
         })
         .then(() => { userType ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen') })

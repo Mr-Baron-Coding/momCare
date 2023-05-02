@@ -8,6 +8,9 @@ import { auth, database } from '../../firebase';
 // icons
 import Logo from '../../assets/SVG/logo';
 
+// fonts
+import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
+
 export default function Signup({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
@@ -22,7 +25,10 @@ export default function Signup({ navigation }) {
                 email: mail,
                 userID: user.uid,
                 usertype: userType ? 'Provider' : 'Customer',
-                about: userType && 'add',
+                about: userType && '',
+                cernqual: userType && '',
+                carearea: userType && '',
+                contact: userType && '',
 
             })
         })
@@ -33,6 +39,13 @@ export default function Signup({ navigation }) {
             console.log(errorCode, errorMessage);
         });
     }; 
+
+    let [fontsLoaded] = useFonts({
+        Poppins_700Bold, Poppins_400Regular,
+        });
+        if (!fontsLoaded) {
+            return null;
+      };
 
   return (
     <KeyboardAvoidingView 
@@ -59,9 +72,13 @@ export default function Signup({ navigation }) {
                 secureTextEntry
                 style={[styles.placeHolder, password && styles.input]}
             />
-            <View style={{ flexDirection: 'row' }}>
-                <TouchableOpacity onPress={ () => setType(false) }><Text>User</Text></TouchableOpacity>
-                <TouchableOpacity onPress={ () => setType(true) }><Text>Provider</Text></TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 15, height: 40, marginVertical: 10, width: '80%' }}>
+                <TouchableOpacity onPress={ () => setType(false) } style={[styles.userButton, userType ? styles.activeUserButton : styles.nonUserButton]}>
+                    <Text style={ !userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>User</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={ () => setType(true) } style={[styles.userButton, !userType ? styles.activeUserButton : styles.nonUserButton]}>
+                    <Text style={ userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>Provider</Text>
+                </TouchableOpacity>
             </View>
             <TouchableOpacity
                 onPress={ () => handleSignin() }
@@ -141,6 +158,26 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginRight: 10
     },
+    userButton: {
+        flex: 1,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    activeUserButton: {
+        backgroundColor: '#562349',
+        
+        borderWidth: 2,
+        borderRadius: 12,
+        borderColor: '#FFFFFF',
+    },
+    nonUserButton: {
+        backgroundColor: '#FFFFFF',
+        
+        borderWidth: 2,
+        borderRadius: 12,
+        borderColor: '#562349',
+    }
 });
 
 // useEffect(() => {

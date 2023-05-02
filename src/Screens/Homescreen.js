@@ -20,7 +20,7 @@ import Heart from '../../assets/SVG/UserIcons/heart';
 import Menu from '../../assets/SVG/UserIcons/menu';
 
 // fonts
-import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
+import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
 export default function Homescreen({ navigation }) {
   const [menuWindow, setMenu] = useState(false);
@@ -42,7 +42,7 @@ export default function Homescreen({ navigation }) {
     },[])
 
   let [fontsLoaded] = useFonts({
-    Poppins_700Bold,
+    Poppins_700Bold, Poppins_400Regular,
     });
     if (!fontsLoaded) {
         return null;

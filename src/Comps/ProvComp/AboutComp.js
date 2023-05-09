@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react';
 
 import AboutSection from './AboutCards/AboutSection';
 import CertSection from './AboutCards/CertSection';
+import CareAreaSection from './AboutCards/CareAreaSection';
+import ContactSection from './AboutCards/ContactSection';
 
 //icons
 import Edit from '../../../assets/SVG/UserIcons/edit';
+import Footer from '../Footer';
 
 export default function AboutComp({ data }) {
     const aboutList = [
@@ -15,10 +18,22 @@ export default function AboutComp({ data }) {
         { header: 'Contact info', data: data.contact, id: 'about4'},
     ];
 
-    const [show, setShow] = useState(true);
+    const [showAbout, setShowAbout] = useState(true);
+    const [showCert, setShowCert] = useState(true);
+    const [showArea, setShowArea] = useState(true);
+    const [showContact, setShowContact] = useState(true);
 
-    const changeShow = (x) => {
-        setShow(x);
+    const changeShowAbout = (x) => {
+        setShowAbout(x);
+    };
+    const changeShowCert = (x) => {
+        setShowCert(x);
+    };
+    const changeShowArea = (x) => {
+        setShowArea(x);
+    };
+    const changeShowContact = (x) => {
+        setShowContact(x);
     };
 
     // editable icon control
@@ -27,10 +42,15 @@ export default function AboutComp({ data }) {
             <View style={styles.cardContainer}>
                 <View style={styles.cardHeaderContainer}>
                     <Text style={styles.cardTextStyle}>{item.header}</Text>
-                    { !show && <TouchableOpacity onPress={ () => {changeShow(!show)}}><Edit /></TouchableOpacity> }
+                    { (!showAbout && item.header === 'About') && <TouchableOpacity onPress={ () => {setShowAbout(!showAbout)}}><Edit /></TouchableOpacity> }
+                    { (!showCert && item.header === 'Certificates and qualification') && <TouchableOpacity onPress={ () => {setShowCert(!showCert)}}><Edit /></TouchableOpacity> }
+                    { (!showArea && item.header === 'Care area') && <TouchableOpacity onPress={ () => {setShowArea(!showArea)}}><Edit /></TouchableOpacity> }
+                    { (!showContact && item.header === 'Contact info') && <TouchableOpacity onPress={ () => {setShowContact(!showContact)}}><Edit /></TouchableOpacity> }
                 </View>
-                {item.id === 'about1' && <AboutSection data={data} show={show} setShow={(x) => changeShow(x) } />}
-                {item.id === 'about2' && <CertSection />}
+                {item.id === 'about1' && <AboutSection data={data} showAbout={showAbout} setShowAbout={(x) => changeShowAbout(x)} />}
+                {item.id === 'about2' && <CertSection data={data} showCert={showCert} setShowCert={(x) => changeShowCert(x)} />}
+                {item.id === 'about3' && <CareAreaSection data={data} showArea={showArea} setShowArea={(x) => changeShowArea(x)} />}
+                {item.id === 'about4' && <ContactSection data={data} showContact={showContact} setShowContact={(x) => changeShowContact(x)} />}
             </View>
         )
     };
@@ -41,8 +61,10 @@ export default function AboutComp({ data }) {
             data={aboutList}
             keyExtractor={(item, index) => index}
             renderItem={ProfileEditCard}
+            listKey='Profile'
             // renderItem={({item}) => <ProfileEditCard item={item} />}
         />
+        <Footer />
     </View>
   )
 };

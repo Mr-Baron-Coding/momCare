@@ -5,7 +5,7 @@ import { ref, get, update } from 'firebase/database';
 import { database } from '../../../../firebase';
 import { useEffect } from 'react';
 
-export default function AboutSection({ data, show, setShow }) {
+export default function AboutSection({ data, showAbout, setShowAbout }) {
     // const [isEditing, setEditing] = useState(true);
     const [aboutChange, setAbout] = useState('');
     const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export default function AboutSection({ data, show, setShow }) {
     useEffect(() => {
         if (data.about.length > 0) {
             setAbout(data.about);
-            setShow(false);
+            setShowAbout(false);
         }
     },[]);
 
@@ -27,7 +27,7 @@ export default function AboutSection({ data, show, setShow }) {
         })
         .then(() => {
             setLoading(prv => prv = false);
-            setShow(false);
+            setShowAbout(false);
         })
         .catch((err) => {
             console.log(err);
@@ -66,7 +66,7 @@ export default function AboutSection({ data, show, setShow }) {
     }
 
   return (
-        show ? editable() : locked()      
+        showAbout ? editable() : locked()      
   )
 }
 

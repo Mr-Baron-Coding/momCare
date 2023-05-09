@@ -26,7 +26,6 @@ export default function Signup({ navigation }) {
                 userID: user.uid,
                 usertype: userType ? 'Provider' : 'Customer',
                 about: userType && '',
-                cernqual: userType && '',
                 carearea: userType && '',
                 contact: userType && '',
 

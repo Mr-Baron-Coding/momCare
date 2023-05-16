@@ -48,7 +48,6 @@ export default function CertSection({ data, showCert, setShowCert }) {
 
     useEffect(() => {
         getFieldsFromDB();
-        console.log(certArray);
     },[]);
 
     let [fontsLoaded] = useFonts({
@@ -138,8 +137,8 @@ export default function CertSection({ data, showCert, setShowCert }) {
     const handleSubmit = () => {
         setLoading((prv) => prv = true);
         if ( certFields.fields === '' || certFields.from === '' || certFields.year === '' ) return console.log('Fields must be filled');
-        const keyVal = push(ref((database), 'users/' + data.userID  + '/cernqual' )).key;
-        set(ref((database), 'users/' + data.userID  + '/cernqual/' + keyVal) , {
+        const keyVal = push(ref((database), 'users/providers/' + data.userID  + '/cernqual' )).key;
+        set(ref((database), 'users/providers/' + data.userID  + '/cernqual/' + keyVal) , {
                 fields: certFields.fields, 
                 from: certFields.from, 
                 year: certFields.year,
@@ -166,7 +165,7 @@ export default function CertSection({ data, showCert, setShowCert }) {
     const getFieldsFromDB = () => {
         let arr = [];
         setDataLoading(true);
-        get(child(ref(database), 'users/' + data.userID  + '/cernqual/')).then((snapshot) => {
+        get(child(ref(database), 'users/providers/' + data.userID  + '/cernqual/')).then((snapshot) => {
             if (snapshot.exists()) {
                 snapshot.forEach((child) => {
                     const childData = child.val();

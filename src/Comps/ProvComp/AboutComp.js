@@ -8,7 +8,6 @@ import ContactSection from './AboutCards/ContactSection';
 
 //icons
 import Edit from '../../../assets/SVG/UserIcons/edit';
-import Footer from '../Footer';
 
 export default function AboutComp({ data }) {
     const aboutList = [
@@ -56,7 +55,7 @@ export default function AboutComp({ data }) {
     };
 
   return (
-    <View>
+    <View style={{flex: 1}}>
         <FlatList 
             data={aboutList}
             keyExtractor={(item, index) => index}
@@ -64,7 +63,6 @@ export default function AboutComp({ data }) {
             listKey='Profile'
             // renderItem={({item}) => <ProfileEditCard item={item} />}
         />
-        <Footer />
     </View>
   )
 };
@@ -73,7 +71,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         paddingHorizontal: 20,
         paddingVertical: 10,
-        marginVertical: 5, 
+        marginBottom: 5, 
         backgroundColor: '#FFFFFF',
         gap: 10
     },
@@ -112,45 +110,45 @@ const styles = StyleSheet.create({
         color: '#562349', 
         fontSize: 14,
     },
-    formContainer: {
-        zIndex: 10,
-        margin: 'auto',
-        backgroundColor: '#FFFFFF',
-        height: '90%',
-        width: '99%',
-        position: 'absolute',
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: '#562349',
-        justifyContent: 'center',
-        alignItems: 'center'
+    // formContainer: {
+    //     zIndex: 10,
+    //     margin: 'auto',
+    //     backgroundColor: '#FFFFFF',
+    //     height: '90%',
+    //     width: '99%',
+    //     position: 'absolute',
+    //     borderRadius: 10,
+    //     borderWidth: 2,
+    //     borderColor: '#562349',
+    //     justifyContent: 'center',
+    //     alignItems: 'center'
         
-    },
-    closeContainer: {
-        transform: [{ translateX : '100%'}]
-    },
-    openContainer: {
-        transform: [{ translateX : '0%'}]
-    },
-    formTextStyle: {
-        fontFamily: 'Poppins_400Regular', 
-        color: '#562349', 
-        fontSize: 14,
-        lineHeight: 20,
-        textTransform: 'capitalize'
-    },
-    inputformStyle: {
-        width: '80%',
-        fontFamily: 'Poppins_400Regular',
-        backgroundColor: 'white',
-        paddingHorizontal: 15,
-        borderColor: '#562349',
-        borderWidth: 1,
-        borderRadius: 20,
-        marginTop: 5,
-        marginBottom: 10,
-        height: 48,
-        color: '#562349',
-        fontSize: 14,
-    },
+    // },
+    // closeContainer: {
+    //     transform: [{ translateX : '100%'}]
+    // },
+    // openContainer: {
+    //     transform: [{ translateX : '0%'}]
+    // },
+    // formTextStyle: {
+    //     fontFamily: 'Poppins_400Regular', 
+    //     color: '#562349', 
+    //     fontSize: 14,
+    //     lineHeight: 20,
+    //     textTransform: 'capitalize'
+    // },
+    // inputformStyle: {
+    //     width: '80%',
+    //     fontFamily: 'Poppins_400Regular',
+    //     backgroundColor: 'white',
+    //     paddingHorizontal: 15,
+    //     borderColor: '#562349',
+    //     borderWidth: 1,
+    //     borderRadius: 20,
+    //     marginTop: 5,
+    //     marginBottom: 10,
+    //     height: 48,
+    //     color: '#562349',
+    //     fontSize: 14,
+    // },
 })

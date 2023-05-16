@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInp
 import React, { useState, useEffect } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { ref, set, get, child } from 'firebase/database';
+import { ref, set, get, child, push } from 'firebase/database';
 import { auth, database } from '../../firebase';
 
 // icons
@@ -14,30 +14,52 @@ import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-font
 export default function Signup({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+    const [userName, setUserName] = useState('');
     const [userType, setType] = useState(false);
 
-    const handleSignin = () => {
+    const handleSigninProvider = () => {
+        // const keyVal = push(ref((database), 'users/providers/')).key;
         createUserWithEmailAndPassword(auth, mail, password)
         .then((userCredential) => {
             const user = userCredential.user;
-    
-            set(ref(database, 'users/' + user.uid), {
+            set(ref(database, 'users/providers/' + user.uid), {
                 email: mail,
+                userName: userName,
                 userID: user.uid,
-                usertype: userType ? 'Provider' : 'Customer',
-                about: userType && '',
-                carearea: userType && '',
-                contact: userType && '',
+                usertype: 'Provider',
+                about: '',
+                carearea: '',
+                cernqal: '',
+                contact: '',
 
             })
         })
-        .then(() => { userType ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen') })
+        .then(() => { navigation.navigate('ProviderHomeScreen')})
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage);
         });
     }; 
+    const handleSigninCustomer = () => {
+        // const keyVal = push(ref((database), 'users/customers/')).key;
+        createUserWithEmailAndPassword(auth, mail, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            set(ref(database, 'users/customers/' + user.uid), {
+                email: mail,
+                userName: userName,
+                userID: user.uid,
+                usertype: 'Customer',
+            })
+        })
+        .then(() => { navigation.navigate('Homescreen')})
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode, errorMessage);
+        });
+    };
 
     let [fontsLoaded] = useFonts({
         Poppins_700Bold, Poppins_400Regular,
@@ -56,6 +78,17 @@ export default function Signup({ navigation }) {
             <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
         </View>
         <View style={styles.body}>
+            <View style={{ paddingHorizontal: 20, justifyContent: 'flex-start', width: '100%' }}>
+                <Text style={styles.bodyHeader}>Welcome!</Text>
+                <Text style={styles.bodyHeader}>Signup and start your journey</Text>
+            </View>
+            <TextInput 
+                placeholder='Name*'
+                placeholderTextColor={'#C4A7B5'}
+                value={userName}
+                onChangeText={ (text) => setUserName(text) }
+                style={[styles.placeHolder, userName && styles.input]}
+            />
             <TextInput 
                 placeholder='Email*'
                 placeholderTextColor={'#C4A7B5'}
@@ -80,7 +113,7 @@ export default function Signup({ navigation }) {
                 </TouchableOpacity>
             </View>
             <TouchableOpacity
-                onPress={ () => handleSignin() }
+                onPress={ userType ? () => handleSigninProvider() : () => handleSigninCustomer() }
                 style={[styles.button, styles.loginButton]}
                 
             >
@@ -104,15 +137,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFA299',
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomColor: '#562349',
-        borderBottomWidth: 2
+        // borderBottomColor: '#562349',
+        // borderBottomWidth: 2
     },
     headerH1: {
-        fontSize: 24,
+        fontFamily: 'Poppins_400Regular',
+        fontSize: 20,
         lineHeight: 40,
         color: 'white',
     },
     headerH2: {
+        fontFamily: 'Quicksand',
         fontSize: 16,
         lineHeight: 30,
         color: 'white'
@@ -121,6 +156,13 @@ const styles = StyleSheet.create({
         height: '50%',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    bodyHeader: {
+        fontFamily: 'Quicksand',
+        fontSize: 16,
+        lineHeight: 30,
+        color: '#562349',
+        marginBottom: 10
     },
     input: {  
         fontSize: 18,

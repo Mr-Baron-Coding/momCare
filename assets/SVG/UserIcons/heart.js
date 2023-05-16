@@ -6,7 +6,7 @@
 import React from 'react'
 import Svg, { Path, Rect } from 'react-native-svg'
 
-export default function logo({ width = '30', height = "30", color = 'white', stroke = '#562349', strokeWidth = '2.5', strokeLinejoin = 'round', strokeLinecap = 'round' }) {
+export default function Heart({ width = '30', height = "30", color = 'white', stroke = '#562349', strokeWidth = '2.5', strokeLinejoin = 'round', strokeLinecap = 'round' }) {
   return (
     <Svg width={width} height={height} viewBox="-10 -10 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
       <Path 

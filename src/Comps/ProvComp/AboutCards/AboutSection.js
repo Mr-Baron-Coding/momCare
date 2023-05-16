@@ -19,7 +19,7 @@ export default function AboutSection({ data, showAbout, setShowAbout }) {
 
     const handleSubmit = () => {
         setLoading(prv => prv = true);
-        update(ref(database, 'users/' + data.userID + '/' ), {
+        update(ref(database, 'users/providers/' + data.userID + '/' ), {
             about: aboutChange
         })
         .then(() => {

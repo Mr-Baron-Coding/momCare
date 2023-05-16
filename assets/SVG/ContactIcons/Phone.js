@@ -1,7 +1,7 @@
 import React from 'react'
 import Svg, { Path } from 'react-native-svg'
 
-export default function babydev({ width = '30', height = "30", color = '#562349' }) {
+export default function Phone({ width = '30', height = "30", color = '#562349' }) {
   return (
     <Svg width={width} height={height} viewBox="-4 -5 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <Path 

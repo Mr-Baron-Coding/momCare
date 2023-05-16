@@ -5,6 +5,8 @@ import ProviderHeader from '../Comps/ProviderHeader';
 import AboutComp from '../Comps/ProvComp/AboutComp';
 import ReviewsComp from '../Comps/ProvComp/ReviewsComp';
 import MessageComp from '../Comps/ProvComp/MessagesComp';
+import Footer from '../Comps/Footer';
+import Menu from '../Comps/Menu';
 
 import { getDatabase, ref, child, get, once } from "firebase/database";
 import { database } from '../../firebase';
@@ -17,9 +19,10 @@ export default function ProviderHomeScreen() {
   const [userData, setData] = useState({});
   const [isLoading, setLoading] = useState(true);
   const [tabScreen, setScreen] = useState(1);
+  const [menuWindow, setMenu] = useState(false);
   
     useEffect(() => {
-      get(ref(database, `users/${auth.currentUser.uid}`)).then((snapshot) => {
+      get(ref(database, `users/providers/${auth.currentUser.uid}`)).then((snapshot) => {
         if (snapshot.exists()) {
           setData(snapshot.val());
           setLoading(false)
@@ -38,8 +41,9 @@ export default function ProviderHomeScreen() {
     };
 
   return (
-    <View style={{ backgroundColor: '#F1F1F1' }}>
-      <ProviderHeader data ={userData.email} />
+    <View style={{ backgroundColor: '#F1F1F1', gap: 5 }}>
+      <Menu menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
+      <ProviderHeader data ={userData.userName} openMenu={ () => setMenu(true) } />
       { !isLoading ? 
       <View>
         <View style={styles.fieldsHeader}>
@@ -57,10 +61,11 @@ export default function ProviderHomeScreen() {
             </TouchableOpacity>
         </View>
          {tabScreen === 1 && <AboutComp data={userData} />} 
-         {tabScreen === 2 && <ReviewsComp />} 
+         {tabScreen === 2 && <ReviewsComp data={userData} />} 
          {tabScreen === 3 && <MessageComp />} 
       </View>
       : <ActivityIndicator size='large' color='#562349' /> }
+      <Footer />
     </View>
   )
 }

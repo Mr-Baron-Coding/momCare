@@ -14,7 +14,7 @@ import Back from '../../assets/SVG/UserIcons/back';
 //fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
-export default function ProviderHeader({ data }) {
+export default function ProviderHeader({ data, openMenu }) {
     
   let [fontsLoaded] = useFonts({
     Poppins_700Bold,
@@ -29,7 +29,9 @@ export default function ProviderHeader({ data }) {
             <Logo height={20} />
             <View style={styles.buttonContainer}>
                 <Mail />
-                <Menu />
+                <TouchableOpacity onPress={ () => openMenu() }>
+                    <Menu />
+                </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.backContainer} onPress={ () => navigation.goBack() }>
                 <Back />

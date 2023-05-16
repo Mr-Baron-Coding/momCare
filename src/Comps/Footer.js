@@ -34,10 +34,9 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
     footer: {
-        // height: 200,
+        backgroundColor: '#FFFFFF',
         justifyContent: 'space-between',
-        flex: 1,
-        width: '100%',
+        // width: '100%',
         alignItems: 'center',
         rowGap: 30
     },

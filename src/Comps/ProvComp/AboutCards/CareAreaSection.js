@@ -35,15 +35,15 @@ export default function CareAreaSection({ data, showArea, setShowArea }) {
         });
       },[]);
 
-      useEffect(() => {
-        console.log(cityList);
-      },[cityList])
+      // useEffect(() => {
+      //   console.log(cityList);
+      // },[cityList])
 
     const checkData = (data) => {
       let arr = [];
       data.map(element => {
         if(element['שם יישוב באנגלית'] !== '') {
-          return arr.push({cityEnglish: element['שם יישוב באנגלית'], cityHeb: element['שם יישוב'], id: element._id });
+          return arr.push({cityEnglish: element['שם יישוב באנגלית'], cityHeb: element['שם יישוב'] });
         }
       });
       setCityList(arr);
@@ -64,10 +64,9 @@ export default function CareAreaSection({ data, showArea, setShowArea }) {
     const handleSubmit = (item) => {
       setLoading(prv => prv = true);
         
-        const keyVal = push(ref((database), 'users/' + data.userID  + '/carearea' )).key;
-        set(ref((database), 'users/' + data.userID  + '/carearea/' + keyVal) , {
+        const keyVal = push(ref((database), 'users/providers/' + data.userID  + '/carearea' )).key;
+        set(ref((database), 'users/providers/' + data.userID  + '/carearea/' + keyVal) , {
           carearea: item,
-          id: keyVal
         })
         .then(() => {
             console.log('Saved');
@@ -94,14 +93,13 @@ export default function CareAreaSection({ data, showArea, setShowArea }) {
     const getFieldsFromDB = () => {
       let arr = [];
       setLoading(true);
-      get(child(ref(database), 'users/' + data.userID  + '/carearea/')).then((snapshot) => {
+      get(child(ref(database), 'users/providers/' + data.userID  + '/carearea/')).then((snapshot) => {
           if (snapshot.exists()) {
               snapshot.forEach((child) => {
                   const childData = child.val();
                   arr.push(childData.carearea)
                   // setSelectedList([...selectedList, childData])
                   // console.log(arr);
-                  console.log(childData);
               })
               // console.log(snapshot.val());
               setSelectedList(arr);
@@ -120,8 +118,8 @@ export default function CareAreaSection({ data, showArea, setShowArea }) {
     <View style={{ gap: 10 }}>
       <FlatList 
         data={selectedList}
-        renderItem={({item}) => <Text style={styles.textStyling} key={`city_` + item.id}>{item}</Text>}
-        keyExtractor={item => item.id}
+        renderItem={({item}) => <Text style={styles.textStyling}>{item}</Text>}
+        keyExtractor={item => item}
         style={styles.areaContainer}
       />
       {showArea && <View>
@@ -161,7 +159,8 @@ const styles = StyleSheet.create({
     areaContainer: {
       flexDirection: 'row',
       gap: 10,
-      marginBottom: 10
+      marginBottom: 10,
+      flexWrap: 'wrap'
     },
     textStyling: {
       fontFamily: 'Quicksand',

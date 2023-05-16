@@ -15,10 +15,21 @@ export default function Login({ navigation, extraData }) {
     const [password, setPassword] = useState('');
 
     useEffect(() => {
-        auth.currentUser && get(ref(database, `users/${auth.currentUser.uid}`)).then((snapshot) => {
+        auth.currentUser && get(ref(database, `users/providers/${auth.currentUser.uid}`)).then((snapshot) => {
               if (snapshot.exists()) {
                 console.log("User is authenticated and exists in the database");
-                snapshot.val().usertype === 'Provider' ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen');
+                navigation.navigate('ProviderHomeScreen');
+              } else {
+                console.log("User is authenticated but does not exist in the database");
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        auth.currentUser && get(ref(database, `users/customers/${auth.currentUser.uid}`)).then((snapshot) => {
+              if (snapshot.exists()) {
+                console.log("User is authenticated and exists in the database");
+                navigation.navigate('Homescreen');
               } else {
                 console.log("User is authenticated but does not exist in the database");
               }

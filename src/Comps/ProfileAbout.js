@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, FlatList } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 //fonts
 import { useFonts, Poppins_400Regular, Poppins_700Bold, Poppins_300Light } from '@expo-google-fonts/poppins';
@@ -9,12 +9,13 @@ import Phone from '../../assets/SVG/ContactIcons/Phone';
 import Site from '../../assets/SVG/ContactIcons/Site';
 import Mail from '../../assets/SVG/UserIcons/mail';
 
-export default function ProfileAbout({ about, area, contact, fields, qualification }) {
+export default function ProfileAbout({ userName, about, carearea, mail, phone, site, fields, cernqual }) {
+
   const aboutList = [
     { header: 'About', data: about, id: 'about1'},
-    { header: 'Certificates and qualification', data: [{fields: fields, id: 'f'}, {qualification: qualification, id: 'q'}], id: 'about2'},
-    { header: 'Care area', data: area, id: 'about3'},
-    { header: 'Contact info', data: contact, id: 'about4'},
+    { header: 'Certificates and qualification', data: cernqual, id: 'about2'},
+    { header: 'Care area', data: carearea, id: 'about3'},
+    { header: 'Contact info', data: {mail: mail, phone: phone, site: site}, id: 'about4'},
   ];
 
   let [fontsLoaded] = useFonts({
@@ -24,83 +25,61 @@ export default function ProfileAbout({ about, area, contact, fields, qualificati
         return null;
   };
 
-
   const AboutCard = ({item}) => {
     return (
       <View style={styles.container}>
         <Text style={{ fontFamily: 'Poppins_700bold', color: '#562349', fontSize: 18 }}>{item.header}</Text>
         { item.id === 'about1' && <Text style={{ fontFamily: 'Poppins_300Light', color: '#562349', fontSize: 14 }}>{item.data}</Text> }
-        { item.id === 'about2' && <Text>{item.data}</Text> &&
+        { item.id === 'about2' &&
            <FlatList 
               data={item.data}
               listKey="about"
               renderItem={({item}) => <QualCard items={item} />}
               keyExtractor={(items, id) => id}
-              style={styles.qualCardContainer}
             />
         }
         { item.id === 'about3' && 
             <FlatList 
               data={item.data}
-              listKey="area"
+              listKey="carearea"
               renderItem={({item}) => <Text style={styles.areaText}>{item}</Text>}
               keyExtractor={(items, id) => id}
               style={styles.areaContainer}
             />  
         }
         { item.id === 'about4' && 
-            <FlatList 
-              data={item.data}
-              listKey="contact"
-              renderItem={({item,index}) => <ContactCard items={item} id={index} />}
-              keyExtractor={(items, id) => id}
-              style={styles.contactContainer}
-            />
+            <ContactCard item={item.data} />
         }
       </View>
     )
   };
 
+  //qualifications card list 
   const QualCard = ({items}) => {
     return (
-      <View >
-        <FlatList 
-          data={items.fields}
-          renderItem={({item}) => <Text style={styles.fieldsText}>{item}</Text>}
-          listKey={item => item.id + 'f'}
-
-        />
-        <FlatList 
-          data={items.qualification}
-          renderItem={({item}) => <Text style={styles.qualText}>{item}</Text>}
-          listKey={item => item.id + 'q'}
-        />
+      <View style={styles.qualCardContainer}>
+        <Text style={styles.fieldsText}>{items.fields}</Text>
+        <Text style={styles.qualText}>{items.from} {items.year}</Text>
       </View>
     )
   };
 
-  const ContactCard = ({items, id}) => {
+  const ContactCard = ({item}) => {
     return (
-      <>
-        {id === 0 && 
+      <View>
           <View style={styles.CardContainer}>
             <Phone height={30} width={30} />
-            <Text style={styles.contactText}>{items}</Text>
+            <Text style={styles.contactText}>{item.phone ? item.phone : 'No phone yet'}</Text>
           </View> 
-        }
-        {id === 1 && 
           <View style={styles.CardContainer}>
             <Mail height={30} width={30} />
-            <Text style={styles.contactText}>{items}</Text>
+            <Text style={styles.contactText}>{item.mail ? item.mail : 'No mail yet'}</Text>
           </View> 
-        }
-        {id === 2 &&
           <View style={styles.CardContainer}>
             <Site />
-            <Text style={styles.contactText}>{items}</Text>
+            <Text style={styles.contactText}>{item.site ? item.site : 'No site yet'}</Text>
           </View>  
-        }
-      </>
+      </View>
     )
   };  
 
@@ -116,18 +95,19 @@ export default function ProfileAbout({ about, area, contact, fields, qualificati
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15
+    padding: 20
   },
   qualCardContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   fieldsText: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 12,
-    marginBottom: 5,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    // marginBottom: 5,
+    // paddingHorizontal: 15,
+    // paddingVertical: 5,
     lineHeight: 18,
     color: '#562349'
   },

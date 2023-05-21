@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, FlatList } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
 
-export default function Profilereviews({ reviewsList }) {
+export default function Profilereviews({ reviewsList, setAddReview }) {
 
   const ReviewCard = ({ item }) => {
+
     return (
       <View style={styles.cardContainer}>
         <Text style={styles.textStyling}>{item.by}</Text>
@@ -15,14 +16,24 @@ export default function Profilereviews({ reviewsList }) {
       </View>
     )
   };
-  return (
+
+  return ( 
     <View style={styles.container}>
-      <Text style={styles.textStyling}>{`${reviewsList.length} Reviews`}</Text>
-      <FlatList 
-        data={reviewsList}
-        renderItem={({item}) => <ReviewCard item={item}/>}
-        keyExtractor={(item, id) => id}
-      />
+      { reviewsList 
+      ? <View>
+          <Text style={styles.textStyling}>{`${reviewsList.length} Reviews`}</Text>
+          <FlatList 
+            data={reviewsList}
+            renderItem={({item}) => <ReviewCard item={item}/>}
+            keyExtractor={(item, id) => id}
+          />
+      </View> 
+      : <View>
+          <Text style={styles.textStyling}>No reviews yet</Text>
+          <TouchableOpacity style={styles.buttonContainer} onPress={ () => setAddReview(true) }>
+            <Text style={styles.buttonText}>Add review</Text>
+          </TouchableOpacity>
+        </View> } 
     </View>
   )
 }
@@ -35,15 +46,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 14,
     color: '#562349'
-},
-cardContainer: {
-  marginVertical: 15
-},
-bodyText: {
-  fontFamily: 'Quicksand',
-  fontWeight: '400',
-  fontSize: 14,
-  paddingVertical: 10,
-  color: '#562349'
-}
+  },
+  cardContainer: {
+    marginVertical: 15
+  },
+  bodyText: {
+    fontFamily: 'Quicksand',
+    fontWeight: '400',
+    fontSize: 14,
+    paddingVertical: 10,
+    color: '#562349'
+  },
+  buttonContainer: {
+    backgroundColor: '#562349',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginVertical: 15,
+    height: 28
+    // width: '100%'
+  },
+  buttonText: {
+    fontFamily: 'Poppins_700Bold',
+    color: '#FFFFFF',
+    
+  },
 })

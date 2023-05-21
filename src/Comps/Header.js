@@ -11,7 +11,7 @@ import Mail from '../../assets/SVG/UserIcons/mail';
 import Back from '../../assets/SVG/UserIcons/back';
 
 
-export default function Header({ showSearch, showProfile, messHeader, route, heightVar, heightProp }) {
+export default function Header({ showSearch, showProfile, messHeader, route, heightVar, heightProp, userName }) {
     const navigation = useNavigation();
     const [field, setField] = useState('');
     const [location, setLocation] = useState('');
@@ -40,7 +40,7 @@ export default function Header({ showSearch, showProfile, messHeader, route, hei
     const profileHeader = () => {
         return (
             <View style={{ position: 'relative'}}>
-                <Text style={{ position: 'absolute', width: '40%', right: 10, bottom: 0, fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF' }}>{name}</Text>
+                <Text style={{ position: 'absolute', width: '40%', right: 10, bottom: 0, fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF' }}>{userName}</Text>
                 <Image 
                     style={{
                         resizeMode: 'cover',

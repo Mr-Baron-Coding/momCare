@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndi
 import React, { useState, useEffect } from 'react';
 import Header from '../Comps/Header';
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
-import { getDatabase, ref, child, get, set, push, query, orderByChild, orderByKey, update } from "firebase/database";
+import { getDatabase, ref, child, get, set, push, query, orderByChild, orderByKey, update, remove } from "firebase/database";
 import { database } from '../../firebase';
 import { auth } from '../../firebase';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import Placeholder from '../../assets/Images/placeholder.jpg';
 
 // icons
 import Heart from '../../assets/SVG/UserIcons/heart';
+import Footer from '../Comps/Footer';
 
 export default function Searchresults({ route }) {
     const navigation = useNavigation();
@@ -133,15 +134,24 @@ export default function Searchresults({ route }) {
 
     //remove like from provider
     const removeLike = (provDetail) => {
-        const isLiked = likeList.filter(like => like.provID === provDetail);
+        const disLiked = likeList.filter(like => like.provID === provDetail);
+        const liked = likeList.filter(like => like.provID !== provDetail);
         // console.log(isLiked.provID + 'Removed');
-        console.log(isLiked[0]);
-
+        // console.log(disLiked[0]);
+        // console.log(liked);
+        setLikeList(liked);
+        remove(child(ref(database), 'users/customers/' + auth.currentUser.uid + '/likes/' + disLiked[0].likeID)).then(() =>{
+            console.log('removed');
+        })
+        .catch((error) => {
+            console.error(error);
+            // setLoading(prev => prev = false);
+        })
     };
 
     const ProvCard = ({ item }) => {
         const isLiked = likeList.filter(like => like.provID === item.userID);
-        console.log(isLiked.length);
+        // console.log(item);
         return (
             <View style={styles.cardContainer}>
                 <View style={styles.cardTextTop}>
@@ -182,17 +192,11 @@ export default function Searchresults({ route }) {
     };
 
   return ( 
-    <View>
+    <View style={{ justifyContent: 'space-between' }}>
         <Header showSearch={true} route={route} heightVar={20} heightProp={200} />
         {isLoading ? <ActivityIndicator size='large' color='blue' /> :
         <View>
             <Text style={styles.bodyHeader}>{name}</Text>
-        {/* <FlatList 
-            data={providersData}
-            renderItem={({item}) => <ProvCard item={item} />}
-            keyExtractor={(item, id) => id}
-            initialNumToRender={5}
-        /> */}
         <FlatList 
             data={listOFProviders}
             renderItem={({item}) => item.selected && <ProvCard item={item} />}
@@ -206,6 +210,7 @@ export default function Searchresults({ route }) {
             renderItem={({item}) => <Text>{item}</Text>}
             keyExtractor={(item, id) => id}
         /> */}
+        <Footer />
     </View>
   )
 }
@@ -216,8 +221,7 @@ const styles = StyleSheet.create({
         color: '#562349',
         height: '5%',
         marginTop: 10,
-        marginBottom: 10, 
-        paddingHorizontal: 15
+        paddingHorizontal: 10
     },
     cardContainer: {
         backgroundColor: '#FFFFFF',

@@ -1,18 +1,24 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Header from '../Comps/Header';
 import About from '../Comps/ProfileAbout';
 import Review from '../Comps/ProfileReviews';
+import ProfileAddReview from '../Comps/ProfileAddReview';
 import Footer from '../Comps/Footer';
 
 export default function ProviderDetailScreen({ navigation, route }) {
-    const { area, contact, fields, about, qualification, reviewsList } = route.params;
+    const { userName, carearea, mail, phone, site, fields, about, cernqual, reviewsList, userID } = route.params;
     const [tabScreen, setScreen] = useState(1);
+    const [addReview, setAddReview] = useState(false);
 
+    useEffect(() => {
+        console.log(reviewsList);
+    },[])
+    
   return (
     <View style={styles.mainContainer}>
-        <Header showSearch={false} showProfile={true} messHeader={false} route={route} heightVar={20} heightProp={200} />
+        <Header showSearch={false} showProfile={true} messHeader={false} route={route} heightVar={20} heightProp={140} userName={userName} />
         <View style={styles.bodyContainer}>
             <View style={styles.filedsContainer}>
                 <FlatList 
@@ -37,8 +43,9 @@ export default function ProviderDetailScreen({ navigation, route }) {
                 </TouchableOpacity> */}
             </View>
             {tabScreen === 1 
-                ? <About about={about} fields={fields} qualification={qualification} area={area} contact={contact} /> 
-                : <Review reviewsList={reviewsList} />
+                ? <About userName={userName} about={about} fields={fields} cernqual={cernqual} carearea={carearea} mail={mail} phone={phone} site={site} /> 
+                // ? <About route={route} /> 
+                : addReview ? <ProfileAddReview setAddReview={setAddReview} providerID={userID} /> : <Review reviewsList={reviewsList} setAddReview={setAddReview} />
             }
         </View>
         <Footer />
@@ -48,7 +55,8 @@ export default function ProviderDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FAFAFA',
+        justifyContent: 'space-between'
     },
     bodyContainer: {
         paddingTop: 50,

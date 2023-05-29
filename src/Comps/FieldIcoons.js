@@ -18,12 +18,12 @@ import PregSupport from '../../assets/SVG/pregsupport'
 import Presupport from '../../assets/SVG/presupport';
 
 // fonts
-import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
+import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
-export default function FieldIcoons() {
+export default function FieldIcoons({ loggedUser, providersData, reviewsData }) {
   const navigation = useNavigation();
     let [fontsLoaded] = useFonts({
-        Poppins_700Bold,
+        Poppins_700Bold, Poppins_400Regular
     });
     if (!fontsLoaded) {
         return null;
@@ -53,7 +53,7 @@ export default function FieldIcoons() {
               <TouchableOpacity 
                 key={i} 
                 style={styles.fieldItems} 
-                onPress={ () => navigation.navigate('Searchresults', { name: item.name }) }
+                onPress={ () => navigation.navigate('Searchresults', { name: item.name, loggedUser: loggedUser, providersData: providersData, reviewsData: reviewsData }) }
               >
                 {item.logo}
                 <Text style={styles.Fieldheader}>{item.name}</Text>
@@ -67,7 +67,8 @@ export default function FieldIcoons() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
+     paddingHorizontal: 20
   },
   bodyHeader: {
       fontFamily: 'Poppins_700Bold', 

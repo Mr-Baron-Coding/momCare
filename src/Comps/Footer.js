@@ -34,18 +34,17 @@ export default function Footer() {
 
 const styles = StyleSheet.create({
     footer: {
-        backgroundColor: '#FFFFFF',
+        padding: 20,
+        backgroundColor: '#F7F7F7',
         justifyContent: 'space-between',
-        // width: '100%',
         alignItems: 'center',
-        rowGap: 30
+        rowGap: 10
     },
     footerOptions: {
         fontFamily: 'Quicksand',
         fontWeight: '300',
         fontSize: 12,
         color: '#562349',
-        // height: '30%',
         width: '90%',
         flexDirection: 'row',
         alignItems: 'center', 

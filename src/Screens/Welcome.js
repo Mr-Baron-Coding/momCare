@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useEffect } from 'react';
-import Logo from '../../assets/SVG/logo';
+import UserHeader from '../Comps/CustomersComp/UserHeader';
+
 
 // material
 import { Divider } from '@rneui/base';
@@ -9,6 +10,8 @@ import { Divider } from '@rneui/base';
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 import Footer from '../Comps/Footer';
 
+//icons
+import Logo from '../../assets/SVG/logo';
 
 export default function Homescreen({ navigation }) {
     let [fontsLoaded] = useFonts({
@@ -19,11 +22,7 @@ export default function Homescreen({ navigation }) {
     };
   return (
     <View style={styles.container}>
-        <View style={styles.header}>
-            <Logo />
-            <Text style={styles.headerH1}>Be sure of your caregiver</Text>
-            <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
-        </View>
+        <UserHeader showHeaderText={true} />
         <View style={styles.body}>
             <TouchableOpacity
                 onPress={ () => navigation.navigate('Login') }
@@ -46,28 +45,8 @@ export default function Homescreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
-        backgroundColor: '#FAFAFA'
-    },
-    header: {
-        // height: '30%',
         flex: 1,
-        backgroundColor: '#FFA299',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headerH1: {
-        fontFamily: 'Quicksand',
-        fontWeight: '700',
-        color: '#FFE8E5',
-        fontSize: 24,
-        lineHeight: 40,
-    },
-    headerH2: {
-        fontFamily: 'Quicksand',
-        fontSize: 16,
-        lineHeight: 30,
-        color: 'white'
+        backgroundColor: '#FAFAFA'
     },
     body: {
         // height: '50%',

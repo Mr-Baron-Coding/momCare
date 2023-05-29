@@ -6,7 +6,7 @@
 import React from 'react'
 import Svg, { Path, Rect } from 'react-native-svg'
 
-export default function logo({ width = '30', height = "30", color = '#FFF2E6' }) {
+export default function Back({ width = '30', height = "30", color = '#FFF2E6' }) {
   return (
     <Svg width={width} height={height} viewBox="0 -4 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
         <Path 

@@ -11,11 +11,11 @@ import Mail from '../../assets/SVG/UserIcons/mail';
 import Back from '../../assets/SVG/UserIcons/back';
 
 
-export default function Header({ showSearch, showProfile, messHeader, route, heightVar, heightProp, userName }) {
+export default function Header({ showSearch, showProfile, messHeader, loggedUser, heightVar, heightProp, name }) {
     const navigation = useNavigation();
     const [field, setField] = useState('');
     const [location, setLocation] = useState('');
-    const { name, profilePic }  = route.params;
+    // const { userName, profilePic }  = route.params;
 
     const searchBox = () => {
         return (
@@ -40,8 +40,8 @@ export default function Header({ showSearch, showProfile, messHeader, route, hei
     const profileHeader = () => {
         return (
             <View style={{ position: 'relative'}}>
-                <Text style={{ position: 'absolute', width: '40%', right: 10, bottom: 0, fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF' }}>{userName}</Text>
-                <Image 
+                <Text style={{ position: 'absolute', width: '40%', right: 10, bottom: 0, fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF' }}>{loggedUser.userName}</Text>
+                {/* <Image 
                     style={{
                         resizeMode: 'cover',
                         width: 150,
@@ -53,7 +53,7 @@ export default function Header({ showSearch, showProfile, messHeader, route, hei
                         
                     }}
                     source={{uri: profilePic}}
-                />
+                /> */}
             </View>
         )
     };

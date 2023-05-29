@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebase';
@@ -7,13 +7,20 @@ import { auth } from '../../firebase';
 import { getDatabase, ref, child, get, once } from "firebase/database";
 import { database } from '../../firebase';
 
+import UserHeader from '../Comps/CustomersComp/UserHeader';
+
 //icons
 import Logo from '../../assets/SVG/logo';
+import Back from '../../assets/SVG/UserIcons/back';
+import Footer from '../Comps/Footer';
 
 export default function Login({ navigation, extraData }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [isMessageShown, setMessageShown] = useState(false);
 
+    // get data 
     useEffect(() => {
         auth.currentUser && get(ref(database, `users/providers/${auth.currentUser.uid}`)).then((snapshot) => {
               if (snapshot.exists()) {
@@ -57,7 +64,15 @@ export default function Login({ navigation, extraData }) {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          console.log(errorCode, errorMessage);
+          if ( errorCode === 'auth/wrong-password' ){
+            setMessage('Wrong password');
+            setMessageShown(true);
+            // passInput.current.focus()
+          }
+          if ( errorCode === 'auth/user-not-found' ){
+            setMessage('No user found');
+            setMessageShown(true);
+          }
         });
     };
 
@@ -65,11 +80,7 @@ export default function Login({ navigation, extraData }) {
     <KeyboardAvoidingView 
         style={styles.container}
     >
-        <View style={styles.header}>
-            <Logo />
-            <Text style={styles.headerH1}>Be sure of your caregiver</Text>
-            <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
-        </View>
+      <UserHeader showBackIcon={true} showHeaderText={true} />
         <View style={styles.body}>
             <TextInput 
                 placeholder='Email*'
@@ -77,6 +88,7 @@ export default function Login({ navigation, extraData }) {
                 value={mail}
                 onChangeText={ (text) => setMail(text) }
                 style={[styles.placeHolder, mail && styles.input]}
+                onFocus={ () => {setMessage(''); setMessageShown(false)}}
             />
             <TextInput 
                 placeholder='Password*'
@@ -85,17 +97,22 @@ export default function Login({ navigation, extraData }) {
                 onChangeText={ (text) => setPassword(text) }
                 secureTextEntry
                 style={[styles.placeHolder, password && styles.input]}
+                onFocus={ () => {setMessage(''); setMessageShown(false)}}
             />
             <TouchableOpacity
                 onPress={ () => handleSigin() }
                 style={[styles.button, styles.loginButton]}
                 
             >
-                <Text style={styles.loginText}>Login</Text>
-                <MaterialCommunityIcons name="login-variant" size={24} color="white" />
+                {!isMessageShown ? 
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.loginText}>Login</Text>
+                    <MaterialCommunityIcons name="login-variant" size={24} color="white" />
+                </View>
+                : <Text style={styles.loginText}>{message}</Text>}
             </TouchableOpacity>
         </View>
-        
+        <Footer />
     </KeyboardAvoidingView>
   )
 }
@@ -104,23 +121,6 @@ const styles = StyleSheet.create({
     container: {
         height: '100%',
         backgroundColor: '#FFFFFF',
-        // flex: 1
-    },
-    header: {
-        height: '40%',
-        backgroundColor: '#FFA299',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerH1: {
-        fontSize: 24,
-        lineHeight: 40,
-        color: 'white',
-    },
-    headerH2: {
-        fontSize: 16,
-        lineHeight: 30,
-        color: 'white'
     },
     body: {
         height: '50%',

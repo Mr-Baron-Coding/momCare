@@ -7,15 +7,22 @@ import { auth, database } from '../../firebase';
 
 // icons
 import Logo from '../../assets/SVG/logo';
+import Back from '../../assets/SVG/UserIcons/back';
+import { Feather } from '@expo/vector-icons'; 
+
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
+import Footer from '../Comps/Footer';
+import UserHeader from '../Comps/CustomersComp/UserHeader';
 
 export default function Signup({ navigation }) {
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
     const [userName, setUserName] = useState('');
     const [userType, setType] = useState(false);
+    const [message, setMessage] = useState('');
+    const [isMessageShown, setMessageShown] = useState(false);
 
     const handleSigninProvider = () => {
         // const keyVal = push(ref((database), 'users/providers/')).key;
@@ -57,8 +64,15 @@ export default function Signup({ navigation }) {
         .then(() => { navigation.navigate('Homescreen')})
         .catch((error) => {
             const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
+            if ( errorCode === 'auth/wrong-password' ){
+                setMessage('Wrong password');
+                setMessageShown(true);
+                // passInput.current.focus()
+              }
+              if ( errorCode === 'auth/user-not-found' ){
+                setMessage('No user found');
+                setMessageShown(true);
+              }
         });
     };
 
@@ -73,11 +87,7 @@ export default function Signup({ navigation }) {
     <KeyboardAvoidingView 
         style={styles.container}
     >
-        <View style={styles.header}>
-            <Logo />
-            <Text style={styles.headerH1}>Be sure of your caregiver</Text>
-            <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
-        </View>
+        <UserHeader showBackIcon={true} showHeaderText={true} />
         <View style={styles.body}>
             <View style={{ paddingHorizontal: 20, justifyContent: 'flex-start', width: '100%' }}>
                 <Text style={styles.bodyHeader}>Welcome!</Text>
@@ -108,9 +118,11 @@ export default function Signup({ navigation }) {
             <View style={{ flexDirection: 'row', gap: 15, height: 40, marginVertical: 10, width: '80%' }}>
                 <TouchableOpacity onPress={ () => setType(false) } style={[styles.userButton, userType ? styles.activeUserButton : styles.nonUserButton]}>
                     <Text style={ !userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>User</Text>
+                    {!userType && <Feather name="check" size={24} color="#562349" />}
                 </TouchableOpacity>
                 <TouchableOpacity onPress={ () => setType(true) } style={[styles.userButton, !userType ? styles.activeUserButton : styles.nonUserButton]}>
                     <Text style={ userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>Provider</Text>
+                    {userType && <Feather name="check" size={24} color="#562349" />}
                 </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -118,11 +130,17 @@ export default function Signup({ navigation }) {
                 style={[styles.button, styles.loginButton]}
                 
             >
-                <Text style={styles.loginText}>Signup</Text>
-                <MaterialCommunityIcons name="login-variant" size={24} color="white" />
+                {!isMessageShown ? 
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.loginText}>Signup</Text>
+                    <MaterialCommunityIcons name="login-variant" size={24} color="white" />
+                </View>
+                : <Text style={styles.loginText}>{message}</Text>}
+                {/* <Text style={styles.loginText}>Signup</Text>
+                <MaterialCommunityIcons name="login-variant" size={24} color="white" /> */}
             </TouchableOpacity>
         </View>
-        
+        <Footer />
     </KeyboardAvoidingView>
   )
 }
@@ -131,27 +149,6 @@ const styles = StyleSheet.create({
     container: {
         height: '100%',
         backgroundColor: '#FFFFFF',
-        // flex: 1
-    },
-    header: {
-        height: '40%',
-        backgroundColor: '#FFA299',
-        justifyContent: 'center',
-        alignItems: 'center',
-        // borderBottomColor: '#562349',
-        // borderBottomWidth: 2
-    },
-    headerH1: {
-        fontFamily: 'Poppins_400Regular',
-        fontSize: 20,
-        lineHeight: 40,
-        color: 'white',
-    },
-    headerH2: {
-        fontFamily: 'Quicksand',
-        fontSize: 16,
-        lineHeight: 30,
-        color: 'white'
     },
     body: {
         height: '50%',
@@ -215,7 +212,8 @@ const styles = StyleSheet.create({
     },
     nonUserButton: {
         backgroundColor: '#FFFFFF',
-        
+        flexDirection: 'row',
+        gap: 10,
         borderWidth: 2,
         borderRadius: 12,
         borderColor: '#562349',

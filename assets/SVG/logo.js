@@ -1,7 +1,7 @@
 import React from 'react'
 import Svg, { Path, Circle } from 'react-native-svg'
 
-export default function logo({ width = '200', height = "100", color = 'white' }) {
+export default function Logo({ width = '200', height = "100", color = 'white' }) {
   return (
     <Svg width={width} height={height} viewBox="0 0 984 179" fill="none" >
         <Path 

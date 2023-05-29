@@ -3,14 +3,15 @@ import React, { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 // images
-import UserPic from '../../assets/Images/placeholder.jpg';
-import Stars from '../../assets/SVG/Stars';
+import UserPic from '../../../assets/Images/placeholder.jpg';
+import Stars from '../../../assets/SVG/Stars';
 
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
-export default function Reviews({ providersData }) {
+export default function Reviews({ loggedUser, providersData, reviewsData }) {
     const navigation = useNavigation();
+
     let [fontsLoaded] = useFonts({
         Poppins_700Bold,
     });
@@ -18,20 +19,9 @@ export default function Reviews({ providersData }) {
         return null;
     };
 
-    // useEffect(() => {
-    //     console.log(providersData);
-    // },[providersData])
-
-    const proList = [
-        { name: 'Mike', profession: 'a', location: 's', pic: '', stars: '' },
-        { name: 'Alex', profession: 'a', location: 's', pic: '', stars: '' },
-        { name: 'Aviva', profession: 'a', location: 's', pic: '', stars: '' },
-        { name: 'Viva', profession: 'a', location: 's', pic: '', stars: '' },
-    ];
-
     const ProCard = ({ item }) => {
         return(
-            <TouchableOpacity style={styles.profCard} onPress={ () => navigation.navigate('ProviderDetail', item ) }>
+            <TouchableOpacity style={styles.profCard} onPress={ () => navigation.navigate('ProviderDetail', {item: item, loggedUser: loggedUser} ) }>
                 <Image 
                     style={{
                         resizeMode: 'cover',
@@ -41,7 +31,7 @@ export default function Reviews({ providersData }) {
                     }}
                     source={UserPic}
                 />
-                <Text>{item.name}</Text>
+                <Text style={{ fontFamily: 'Poppins_700Bold', color: '#AD6989', fontSize: 16 }}>{item.userName}</Text>
                 <Text style={styles.bodyHeader}>Profession</Text>
                 <Text style={styles.bodyHeader}>Location</Text>
                 <Stars />
@@ -65,7 +55,8 @@ export default function Reviews({ providersData }) {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
-        flex: 1
+        flex: 1,
+        paddingHorizontal: 20
     },
     bodyHeader: {
         fontFamily: 'Poppins_700Bold', 

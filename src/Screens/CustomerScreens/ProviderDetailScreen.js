@@ -1,25 +1,33 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 
-import Header from '../Comps/Header';
-import About from '../Comps/ProfileAbout';
-import Review from '../Comps/ProfileReviews';
-import ProfileAddReview from '../Comps/ProfileAddReview';
-import Footer from '../Comps/Footer';
+import About from '../../Comps/ProfileAbout';
+import Review from '../../Comps/ProfileReviews';
+import ProfileAddReview from '../../Comps/ProfileAddReview';
+import Footer from '../../Comps/Footer';
+import UserHeader from '../../Comps/CustomersComp/UserHeader';
+import MessagesScreen from './MessagesScreen';
+import LikedScreen from './LikedScreen';
+import MenuScreen from '../../Comps/Menu';
 
 export default function ProviderDetailScreen({ navigation, route }) {
-    const { userName, carearea, mail, phone, site, fields, about, cernqual, reviewsList, userID } = route.params;
+    const { userName, carearea, mail, phone, site, fields, about, cernqual, reviewsList, userID } = route.params.item;
+    const { loggedUser, likeList } = route.params;
+    const selectedField = route.params.name;
+    const [menuWindow, setMenu] = useState(false);
     const [tabScreen, setScreen] = useState(1);
     const [addReview, setAddReview] = useState(false);
+    const [shownComp, setShownComp] = useState(0);
 
-    useEffect(() => {
-        console.log(reviewsList);
-    },[])
+    // useEffect(() => {
+    //     console.log(route.params);
+    // },[])
     
   return (
     <View style={styles.mainContainer}>
-        <Header showSearch={false} showProfile={true} messHeader={false} route={route} heightVar={20} heightProp={140} userName={userName} />
-        <View style={styles.bodyContainer}>
+        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} userName={loggedUser.userName} setShownComp={(x) => setShownComp(x)} likeList={likeList} />
+        <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
+        {shownComp === 0 && <View style={styles.bodyContainer}>
             <View style={styles.filedsContainer}>
                 <FlatList 
                     data={fields}
@@ -27,7 +35,7 @@ export default function ProviderDetailScreen({ navigation, route }) {
                     keyExtractor={(item, id) => id}
                     
                 />
-            <TouchableOpacity style={styles.buttonContainer} onPress={ () => navigation.navigate('Message', route.params) }>
+            <TouchableOpacity style={styles.buttonContainer} onPress={ () => navigation.navigate('Message', {item: route.params.item}) }>
                 <Text style={styles.buttonText}>Message</Text>
             </TouchableOpacity>
             </View>
@@ -38,16 +46,17 @@ export default function ProviderDetailScreen({ navigation, route }) {
                 <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
                     <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(3) }>
-                    <Text style={[tabScreen === 3 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Messages</Text>
-                </TouchableOpacity> */}
             </View>
             {tabScreen === 1 
                 ? <About userName={userName} about={about} fields={fields} cernqual={cernqual} carearea={carearea} mail={mail} phone={phone} site={site} /> 
                 // ? <About route={route} /> 
-                : addReview ? <ProfileAddReview setAddReview={setAddReview} providerID={userID} /> : <Review reviewsList={reviewsList} setAddReview={setAddReview} />
+                : addReview 
+                    ? <ProfileAddReview userName={userName} setAddReview={setAddReview} providerID={userID} selectedField={selectedField} /> 
+                    : <Review reviewsList={reviewsList} addReview ={addReview} setAddReview={setAddReview} providerID={userID} />
             }
-        </View>
+        </View>}
+        {shownComp === 1 && <MessagesScreen />}
+        {shownComp === 2 && <LikedScreen />}
         <Footer />
     </View>
   )

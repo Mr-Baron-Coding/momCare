@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
         textAlign: 'left',
-        flex: 1
+        flex: 1,
+        paddingHorizontal: 20
     },
     bodyHeader: {
         fontFamily: 'Poppins_700Bold', 

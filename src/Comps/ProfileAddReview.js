@@ -1,75 +1,102 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Switch } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ref, update, get, push, child, set, onValue } from 'firebase/database';
 import { auth } from '../../firebase';
 import { database } from '../../firebase';
 
+import { Picker } from '@react-native-picker/picker';
+
+//redux
+import { useSelector, useDispatch } from 'react-redux';
+
 //icon
 import Star from '../../assets/SVG/UserIcons/Star';
+import { editSelectedReview, editReviewData } from '../Redux/features/dataSlice';
 
-export default function ProfileAddReview({ setAddReview, providerID, userName, selectedField }) {
+export default function ProfileAddReview({ addReview, setAddReview, providerID, userName, item }) {
+    const pickerRef = useRef();
+    const dispatch= useDispatch();
+    const reviewsList = useSelector((state) => state.data.reviewsData);
+    const currentUserData = useSelector((state) => state.data.userData);
+    const selectedProvider = useSelector((state) => state.data.selectedProvider);
+    const selectedreview = useSelector((state) => state.data.selectedReviw);
+    const loggedUser = useSelector((state) => state.data.userdata);
+
+    const [selectedProviderReviews, setSelectedProviderREviews] = useState([]);
+
     const [reviewField, setReviewField] = useState('');
     const [loading, setLoading] = useState(false);
     const [stars, setStars] = useState(0);
     const starRating = [1,2,3,4,5];
     const [isReviewed, setReviewed] = useState(false);
-    const [reviewKey, setReviewKey] = useState('');
-    const [reviewedData, setReviewedData] = useState({});
+    const [selectedField, setSelectedField] = useState('');
 
     useEffect(() => {
-        get(child(ref(database), 'users/reviews/')).then((snap) => {
-            if (snap.exists()) {
-                snap.forEach(review => {
-                    // console.log(review.key);
-                    // console.log('provider:' + providerID, 'user:' + auth.currentUser.uid);
-                    if(review.val().providerID === providerID && review.val().userID === auth.currentUser.uid){
-                        setReviewedData(review.val());
-                        setReviewField(review.val().reviewBody);
-                        setStars(review.val().reviewScore);
-                        setReviewKey(review.key);
-                        setReviewed(true);
-                    }
-                })
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+        //get all selected provider reviews
+        const temp = reviewsList.filter(review => review.providerID === selectedProvider.userID);
+        setSelectedProviderREviews(temp);
+
+        //check if user revied the provider
+        const reviewState = temp.filter(review => review.userID === auth.currentUser.uid);
+        if ( reviewState.length !== 0) {
+            setReviewed(true);
+        }
+        console.log(reviewState[0]);
+        setReviewField(reviewState[0].reviewBody);
+        setSelectedField(reviewState[0].selectedField);
+        setStars(reviewState[0].reviewScore);
     },[]);
 
     //add new review
     const handleSaveReview = () => {
         if ( reviewField.length < 5 ) { return console.log("Canno't be blank");}
-        setLoading((prv) => prv = true);
-        const keyVal = push(ref((database), 'users/reviews/')).key;
-        set(ref((database), 'users/reviews/' + keyVal) , {
-                userID: auth.currentUser.uid,
-                userName: userName,
-                providerID: providerID,
-                reviewID: keyVal,
-                reviewBody: reviewField,
-                reviewScore: stars,
-                selectedField: selectedField,
-                date: (new Date().getDate() + '-' + new Date().getUTCMonth() + '-' + new Date().getFullYear())
-        })
+        setLoading(true);
+        const keyVal = push(ref(database, 'users/reviews/')).key;
+        const reviewData = {
+            userID: auth.currentUser.uid,
+            userName: currentUserData.userName,
+            providerID: selectedProvider.userID,
+            reviewID: keyVal,
+            reviewBody: reviewField,
+            reviewScore: stars,
+            selectedField: selectedField,
+            timeStamp: (new Date().getTime())
+        };
+        const addUserReview = {
+            reviewID: keyVal,
+        };
+        const addProviderReview = {
+            reviewID: keyVal,
+        };
+        const ob ={};
+        ob['users/reviews/' + keyVal] = reviewData;
+        ob['users/customers/' + auth.currentUser.uid + '/reviewsList/' + keyVal] = addUserReview;
+        ob['users/providers/' + selectedProvider.userID + '/reviewsList/' + keyVal] = addProviderReview;
+
+        update(ref(database), ob)
         .then(() => {
             console.log('Saved');
         })
         .then(() => {
-            setLoading((prv) => prv = false);
-            setAddReview(false)
+            setLoading(false);
+            setAddReview(false);
         })
         .catch((err) => {
             console.log(err);
-            setLoading((prv) => prv = false);
+            setLoading(false);
         })
     };
 
     //edit review
     const handleEditReview = () => {
-        update(child(ref(database), 'users/reviews/' + reviewKey + '/'), {
+        update(ref(database, 'users/reviews/' + selectedreview.reviewID + '/'), {
             reviewScore: stars,
-            reviewBody: reviewField
+            reviewBody: reviewField,
+            selectedField: selectedField
+        })
+        .then(() => {
+            // dispatch(editSelectedReview({selectedField: selectedField, reviewBody: reviewField, reviewScore: stars }));
+            dispatch(editReviewData({selectedField: selectedField, reviewBody: reviewField, reviewScore: stars, reviewID: selectedreview.reviewID }));
         })
         .then(() => {
             setAddReview(false);
@@ -79,9 +106,32 @@ export default function ProfileAddReview({ setAddReview, providerID, userName, s
         })
     };
 
-  return (
-    <View style={styles.container}>
-      { isReviewed ? <Text>Edit your review</Text> : <Text>Add your reveiw to this provider</Text>}
+    const pickerComp = () => {
+        return (
+            <Picker
+                ref={pickerRef}
+                selectedValue={selectedField}
+                onValueChange={(itemValue, itemIndex) => setSelectedField(itemValue)}
+                style={styles.fieldContainer}
+            >
+                {selectedProvider.cernqual.map((element, index) => {
+                    return <Picker.Item key={index + 'field'} label={element.fields} value={element.fields} />
+                    })
+                }
+            </Picker>
+        )
+    };
+
+  return ( 
+    selectedProvider.cernqual === undefined 
+        ? <View style={styles.container}>
+            <Text style={styles.certSectionText}>Unable To review</Text>
+            <Text style={styles.certSectionText}>Provider have no certifications</Text>
+        </View> 
+        : <View style={styles.container}>
+      {isReviewed 
+        ? <Text style={styles.certSectionText}>Edit your review</Text> 
+        : <Text style={styles.certSectionText}>Add your reveiw to this provider</Text>}
       <TextInput 
         placeholder='Write something about your favourite provider'
         value={reviewField}
@@ -90,6 +140,10 @@ export default function ProfileAddReview({ setAddReview, providerID, userName, s
         numberOfLines={6}
         style={styles.inputTextStyle}
       />
+      <View>
+        <Text style={styles.certSectionText}>Select field of care</Text>
+        {pickerComp()}
+      </View>
       <View style={{ flexDirection: 'row' ,justifyContent: 'center', alignItems: 'center' }}>
         {starRating.map((item, index) => {
             return(
@@ -115,7 +169,23 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         gap: 10
-      },
+    },
+    certSectionText: {
+        fontFamily: 'Poppins_400Regular', 
+        color: '#562349', 
+        fontSize: 14,
+        textDecorationLine: 'underline',
+    },
+    fieldContainer: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderColor: '#562349',
+        borderWidth: 2,
+        borderRadius: 10,
+        fontFamily: 'Poppins_400Regular', 
+        color: '#562349', 
+        fontSize: 12,
+    },
       inputTextStyle: {
         fontFamily: 'Poppins_400Regular', 
         color: '#562349', 

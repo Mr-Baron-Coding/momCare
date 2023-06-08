@@ -17,10 +17,11 @@ import Search from '../../../assets/SVG/UserIcons/search';
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
-export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, showHeaderText=false, setMenu, setShownComp, searchFieldFill='', messActive=false, provName='' }) {
+export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, showHeaderText=false, setMenu, setShownComp, searchFieldFill='', messActive=false, provName='', isLookingAtProvider=false }) {
   const navigation = useNavigation();
   const likeList = useSelector((state) => state.data.likeData);
   const loggedUser = useSelector((state) => state.data.userData);
+  const selectedProvider = useSelector((state) => state.data.selectedProvider);
   const slideAnimation = useRef(new Animated.Value(heightVar)).current;
   const [isSearchOpen, setOpenSearch] = useState(false);
   const [searchByField, setSearchField] = useState('');
@@ -72,7 +73,10 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
 
   return (
     <View style={[styles.headerContainer, {height: slideAnimation.interpolate({inputRange: [0,1], outputRange: [heightVar, 200]}) } ]}>
-      {showBackIcon && <TouchableOpacity style={{ position: 'absolute', top: 20, left: 20, zIndex: 5 }} onPress={ () => navigation.goBack()}><Back /></TouchableOpacity>}
+      {showBackIcon && 
+        <TouchableOpacity style={{ position: 'absolute', top: 20, left: 20, zIndex: 5 }} onPress={ () => navigation.goBack()}>
+          <Back />
+        </TouchableOpacity>}
       {showUserIcons && 
         <View style={styles.iconRow}>
           <TouchableOpacity onPress={ () => slide(isSearchOpen ? 1 : 0) }><Search /></TouchableOpacity>
@@ -80,73 +84,89 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
           <TouchableOpacity onPress={ () => setShownComp(2) }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity>
           <TouchableOpacity onPress={ () => setMenu(true)}><MenuIcon /></TouchableOpacity>
         </View>}
+        {/* logog container */}
       <View style={styles.logoContainer}>
-      <TouchableOpacity onPress={ () => setShownComp(0) }><Logo height={logoHeight} width={logoWidth} /></TouchableOpacity>
+        <TouchableOpacity onPress={ () => setShownComp(0) }>
+          <Logo height={logoHeight} width={logoWidth} />
+        </TouchableOpacity>
       </View>
+      {/* show the header on login pages */}
       {showHeaderText &&
         <View>
           <Text style={styles.headerH1}>Be sure of your caregiver</Text>
           <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
         </View>}
+        {/* show serach */}
       {isSearchOpen && searchBox()}
-      <View style={{ flexDirection: 'row', gap: 20 }}>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        {/* show user name */}
         {(!showHeaderText && loggedUser.userName !== '') 
-        && <Text style={{ fontFamily: 'Quicksand', fontWeight: '700', fontSize: 20, color: '#FFFFFF' }}>{`Hi ${loggedUser.userName}`}</Text>}
-        {messActive && <Text style={{ fontFamily: 'Quicksand', fontWeight: '700', fontSize: 16, color: '#FFFFFF', textAlign: 'center', verticalAlign: 'middle' }}>you are speaking with {provName}</Text>}
+        && <Text style={styles.bottomHeaderTextStyle}>{`Hi ${loggedUser.userName}`}</Text>}
+        {/* show incase checking provider */}
+        {isLookingAtProvider && <Text style={styles.bottomHeaderTextStyle}>u are checking out {selectedProvider.userName}</Text>}
+        {/* show incase messaging provider */}
+        {messActive && <Text style={styles.bottomHeaderTextStyle}>you are speaking with {provName}</Text>}
       </View>
     </View>
   )
 };
 
 const styles = StyleSheet.create({
-    headerContainer: {
-        backgroundColor: '#FFA299',
-        padding: 20,
-    },
-    iconRow: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end'
-    },
-    logoContainer: {
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    headerH1: {
-      fontFamily: 'Poppins_400Regular',
-      fontSize: 20,
-      lineHeight: 40,
-      color: 'white',
+  headerContainer: {
+    backgroundColor: '#FFA299',
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 10
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  logoContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  headerH1: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 20,
+    lineHeight: 40,
+    color: 'white',
   },
   headerH2: {
-      fontFamily: 'Quicksand',
-      fontSize: 16,
-      lineHeight: 30,
-      color: 'white'
+    fontFamily: 'Quicksand',
+    fontSize: 16,
+    lineHeight: 30,
+    color: 'white'
   },
-  //search field styling
   searchBox: {
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: 10
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10
   },
   searchField: {
-      width: '80%',
-      flexDirection: 'row',
-      backgroundColor: '#FFFFFF',
-      borderColor: '#562349',
-      borderWidth: 2,
-      height: 32,
-      borderRadius: 38,
-      paddingHorizontal: 10,
-      alignItems: 'center',
-      columnGap: 5
+    width: '80%',
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#562349',
+    borderWidth: 2,
+    height: 32,
+    borderRadius: 38,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    columnGap: 5
   },
   searchLocation: {},
   fontStyling: {
-      fontFamily: 'Quicksand',
-      fontWeight: '900',
-      fontSize: 16,
-      lineHeight: 20
+    fontFamily: 'Quicksand',
+    fontWeight: '900',
+    fontSize: 16,
+    lineHeight: 20
   },
+  bottomHeaderTextStyle: {
+    fontFamily: 'Quicksand', 
+    fontWeight: '700', 
+    fontSize: 20, 
+    color: '#FFFFFF'
+  }
 });

@@ -1,7 +1,7 @@
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, FlatList, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 
-import { getDatabase, ref, child, get, onValue } from "firebase/database";
+import { ref, child, get } from "firebase/database";
 import { database } from '../../../firebase';
 import { auth } from '../../../firebase';
 
@@ -9,27 +9,22 @@ import UserHeader from '../../Comps/CustomersComp/UserHeader';
 import FieldIcoons from '../../Comps/FieldIcoons';
 import Reviews from '../../Comps/CustomersComp/Reviews';
 import News from '../../Comps/News';
-import Map from '../Map';
+// import Map from '../Map';
 import Footer from '../../Comps/Footer';
 import MenuScreen from '../../Comps/Menu';
 import LikedScreen from './LikedScreen';
 import MessagesScreen from './MessagesScreen';
 
 // redux
-import { useDispatch, useSelector } from 'react-redux';
-import { saveLikedata, saveProvidersData, saveReviewsData, saveUserData } from '../../Redux/features/dataSlice';
+import { useDispatch } from 'react-redux';
+import { saveLikedata, saveMessageData, saveProvidersData, saveReviewsData, saveUserData } from '../../Redux/features/dataSlice';
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
 export default function Homescreen() {
   const dispatch = useDispatch();
-  const likeList = useSelector((state) => state.data.likeData);
   const [menuWindow, setMenu] = useState(false);
-  const [loggedUser, setLoggedUser] = useState({}); //current user data
-  // const [likeList, setLikeList] = useState([]); // cureent user like list
-  const [providersData, setData] = useState([]); // providers list of data 
-  const [reviewsData, setReviewsData] = useState([]); // list of reviews
   const [isLoading, setLoading] = useState(false);
   const [shownComp, setShownComp] = useState(0);
 
@@ -57,12 +52,16 @@ export default function Homescreen() {
                           certList.push({fields: area.val().fields, from: area.val().from, year: area.val().year});
                           arr[item.key] = certList;
                       })
+                      let messList = [];
+                      item.key === 'messages' && item.forEach(area => {
+                          messList.push(area.key);
+                          arr['messages'] = messList;
+                      })
                   }
               });
               arrList.push(arr);
               arr = {};
           })
-          setData(arrList);
           dispatch(saveProvidersData(arrList));
       } else {
         console.log("No data available");
@@ -77,7 +76,6 @@ export default function Homescreen() {
               arr.push(provider.val());
             })
             // console.log(snapshot.val());
-            setReviewsData(arr);
             dispatch(saveReviewsData(arr));
           } else {
             console.log("No data available");
@@ -85,7 +83,39 @@ export default function Homescreen() {
           }
       }).catch((error) => {
       console.error(error);
-      });
+      })
+    .then(() => {
+      // get all message threads 
+      get(child(dbRef, 'users/messages/')).then((snapshot) => {
+        if (snapshot.exists()) {  
+          let arr = [];
+          snapshot.forEach(messID => {
+            let bodyFlow = [];       
+            let messObj = {}; 
+            messID.forEach(messItem => {  
+              // go through all messages threads
+              if (messItem.hasChildren()){
+                // go through all items in message thread
+                let bodyI ={}; 
+                messItem.forEach(bodyItem => {
+                  //if message thread has messages
+                  bodyI[bodyItem.key] = bodyItem.val();
+                })
+                bodyFlow.push(bodyI);
+                bodyI ={};
+
+                messObj['body'] = bodyFlow;
+              } else {
+                  messObj[messItem.key] = messItem.val();
+              }   
+            })
+            arr.push(messObj);
+            messObj = {};
+          })
+          dispatch(saveMessageData(arr));
+        }
+      })
+    })
     }).then(() => {
       get(child(dbRef, 'users/customers/' + auth.currentUser.uid + '/'))
       //get logged user's data
@@ -93,21 +123,29 @@ export default function Homescreen() {
         if (snapshot.exists()) {
           let ob = {};
           snapshot.forEach(item => {
-            if ( item.key !== 'likes' ) {
+            if ( !item.hasChildren() ) {
               ob[item.key] = item.val();
             }
-            if ( item.key === 'likes' ) {
-              let likearr = [];
-              item.forEach(like => {
-                like.forEach(prov => {
-                  likearr.push({provID: prov.val(), likeID: like.key})
+            else {
+              if ( item.key === 'likes' ) {
+                let likearr = [];
+                item.forEach(like => {
+                  like.forEach(prov => {
+                    likearr.push({provID: prov.val(), likeID: like.key})
+                  })
                 })
-              })
               ob['likes'] = likearr;
               dispatch(saveLikedata(likearr));
+              }
+              if ( item.key === 'messages' ) {
+                let messArr = [];
+                item.forEach(mess => {
+                  messArr.push(mess.key)
+                })
+                ob['messages'] = messArr;
+              }
             }
           })            
-          setLoggedUser(ob);
           dispatch(saveUserData(ob));
         }
       })
@@ -128,8 +166,8 @@ export default function Homescreen() {
   
 
 const Data = [
-  { screen: <FieldIcoons loggedUser={loggedUser} providersData={providersData} reviewsData={reviewsData} />, id: 1 },
-  { screen: <Reviews loggedUser={loggedUser} providersData={providersData} reviewsData={reviewsData} />, id: 2 },
+  { screen: <FieldIcoons />, id: 1 },
+  { screen: <Reviews />, id: 2 },
   { screen: <News />, id: 3 },
   // { screen: <Map />, id: 4 },
   { screen: <Footer />, id: 4 },
@@ -144,11 +182,10 @@ const Data = [
           data={Data}
           renderItem={({item}) => item.screen}
           keyExtractor={item => item.id}
-          // style={styles.compStyling}
+          contentContainerStyle={{ gap: 10 }}
         />}
       {shownComp === 1 && <MessagesScreen />}
       {shownComp === 2 && <LikedScreen />}
-      {/* <Footer /> */}
     </View>
   )
 };
@@ -157,8 +194,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
-  },
-  // compStyling: {
-  //   paddingHorizontal: 20
-  // }  
+  }
 });

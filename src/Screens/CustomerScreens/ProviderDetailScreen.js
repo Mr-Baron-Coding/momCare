@@ -1,7 +1,10 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 
-import About from '../../Comps/ProfileAbout';
+//redux
+import { useSelector } from 'react-redux';
+
+import About from '../../Comps/CustomersComp/ProfileAbout';
 import Review from '../../Comps/ProfileReviews';
 import ProfileAddReview from '../../Comps/ProfileAddReview';
 import Footer from '../../Comps/Footer';
@@ -9,52 +12,61 @@ import UserHeader from '../../Comps/CustomersComp/UserHeader';
 import MessagesScreen from './MessagesScreen';
 import LikedScreen from './LikedScreen';
 import MenuScreen from '../../Comps/Menu';
+import { auth } from '../../../firebase';
 
 export default function ProviderDetailScreen({ navigation, route }) {
-    const { userName, carearea, mail, phone, site, fields, about, cernqual, reviewsList, userID } = route.params.item;
-    const { loggedUser, likeList } = route.params;
-    const selectedField = route.params.name;
+    const providersList = useSelector((state) => state.data.providersData);
+    const loggedUser = useSelector((state) => state.data.userdata);
+    const reviewsList = useSelector((state) => state.data.reviewsData);
+    const selectedProvider = useSelector((state) => state.data.selectedProvider);
+    
     const [menuWindow, setMenu] = useState(false);
     const [tabScreen, setScreen] = useState(1);
     const [addReview, setAddReview] = useState(false);
     const [shownComp, setShownComp] = useState(0);
 
-    // useEffect(() => {
-    //     console.log(route.params);
-    // },[])
+    useEffect(() => {
+        console.log(reviewsList);
+        //get all selected provider reviews
+        const temp = reviewsList.filter(review => review.providerID === selectedProvider.userID);
+
+        //check if user revied the provider
+        const reviewState = temp.filter(review => review.providerID === auth.currentUser.uid);
+        // if ( reviewState.length !== 0) setAddReview(false);
+    },[])
     
   return (
     <View style={styles.mainContainer}>
-        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} userName={loggedUser.userName} setShownComp={(x) => setShownComp(x)} likeList={likeList} />
+        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} isLookingAtProvider={true} />
         <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
-        {shownComp === 0 && <View style={styles.bodyContainer}>
-            <View style={styles.filedsContainer}>
-                <FlatList 
-                    data={fields}
-                    renderItem={({item}) => <Text style={styles.textStyling}>{item}</Text>}
-                    keyExtractor={(item, id) => id}
-                    
-                />
-            <TouchableOpacity style={styles.buttonContainer} onPress={ () => navigation.navigate('Message', {item: route.params.item}) }>
-                <Text style={styles.buttonText}>Message</Text>
-            </TouchableOpacity>
-            </View>
-            <View style={styles.selectTabs}>
-                <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(1) }>
-                    <Text style={[tabScreen === 1 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Profile</Text>
+        {shownComp === 0 && 
+            <View style={styles.bodyContainer}>
+                <View style={styles.filedsContainer}>
+                    <FlatList 
+                        data={selectedProvider.cernqual}
+                        renderItem={({item}) => <Text style={styles.textStyling}>{item.fields}</Text>}
+                        keyExtractor={(item, id) => id}
+                        
+                    />
+                <TouchableOpacity style={styles.buttonContainer} onPress={ () => navigation.navigate('Message') }>
+                    <Text style={styles.buttonText}>Message</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
-                    <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
-                </TouchableOpacity>
-            </View>
-            {tabScreen === 1 
-                ? <About userName={userName} about={about} fields={fields} cernqual={cernqual} carearea={carearea} mail={mail} phone={phone} site={site} /> 
-                // ? <About route={route} /> 
-                : addReview 
-                    ? <ProfileAddReview userName={userName} setAddReview={setAddReview} providerID={userID} selectedField={selectedField} /> 
-                    : <Review reviewsList={reviewsList} addReview ={addReview} setAddReview={setAddReview} providerID={userID} />
-            }
-        </View>}
+                </View>
+                <View style={styles.selectTabs}>
+                    <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(1) }>
+                        <Text style={[tabScreen === 1 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Profile</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
+                        <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
+                    </TouchableOpacity>
+                </View>
+                {tabScreen === 1 
+                    ? <About /> 
+                    : addReview 
+                        ? <ProfileAddReview addReview={addReview} setAddReview={ (x) => setAddReview(x) } /> 
+                        : <Review addReview={addReview} setAddReview={ (x) => setAddReview(x) } />
+                }
+            </View>}
         {shownComp === 1 && <MessagesScreen />}
         {shownComp === 2 && <LikedScreen />}
         <Footer />
@@ -67,11 +79,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#FAFAFA',
         justifyContent: 'space-between'
     },
-    bodyContainer: {
-        paddingTop: 50,
-    },
     filedsContainer: {
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        paddingVertical: 10
     },
     textStyling: {
         fontFamily: 'Quicksand',
@@ -86,7 +96,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginVertical: 15,
         height: 28
-        // width: '100%'
     },
     buttonText: {
         fontFamily: 'Poppins_700Bold',
@@ -103,13 +112,3 @@ const styles = StyleSheet.create({
         height: 25
     }
 });
-
-// style={{
-        //     shadowColor: 'black',
-        //     shadowOffset: {
-        //         width: 0,
-        //         height: 8,
-        //     },
-        //     shadowOpacity: 0.46,
-        //     shadowRadius: 11.14,
-        // }}

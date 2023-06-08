@@ -1,17 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, KeyboardAvoidingView } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../../firebase';
 
-import { getDatabase, ref, child, get, once } from "firebase/database";
+import { ref, get } from "firebase/database";
 import { database } from '../../firebase';
 
 import UserHeader from '../Comps/CustomersComp/UserHeader';
 
 //icons
-import Logo from '../../assets/SVG/logo';
-import Back from '../../assets/SVG/UserIcons/back';
 import Footer from '../Comps/Footer';
 
 export default function Login({ navigation, extraData }) {
@@ -19,6 +17,7 @@ export default function Login({ navigation, extraData }) {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isMessageShown, setMessageShown] = useState(false);
+    const [checkForProvider, setCheckProvider] = useState([])
 
     // get data 
     useEffect(() => {
@@ -44,22 +43,24 @@ export default function Login({ navigation, extraData }) {
             .catch((error) => {
               console.error(error);
             });
+      get(ref(database, 'users/providers/'))
+      .then((snap) => {
+        if (snap.exists()) {
+          snap.forEach(usersID => {
+            setCheckProvider([...checkForProvider, usersID.val().userID])
+          })
+        }
+      }).catch((err) => {
+        console.log(err + `Can't get user ID's...`);
+      })
     }, []);
 
     const handleSigin = () => {
         signInWithEmailAndPassword(auth, mail, password)            
         .then((userCredential) => {
-          const user = userCredential.user;
-          const dbRef = ref(getDatabase());
-            get(child(dbRef, `users/`)).then((snapshot) => {
-            if (snapshot.exists()) {
-                snapshot.val().usertype === 'Provider' ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen');
-            } else {
-                console.log("No data available");
-            }
-            }).catch((error) => {
-                console.error(error);
-            });
+          const user = userCredential.user.uid;
+          const check = checkForProvider.filter(idVal => user === idVal);
+          check.length > 0 ? navigation.navigate('ProviderHomeScreen') : navigation.navigate('Homescreen');
         })
         .catch((error) => {
           const errorCode = error.code;

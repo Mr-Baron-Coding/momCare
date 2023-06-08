@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F7F7',
         justifyContent: 'space-between',
         alignItems: 'center',
-        rowGap: 10
+        rowGap: 10,
     },
     footerOptions: {
         fontFamily: 'Quicksand',

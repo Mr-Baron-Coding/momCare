@@ -1,40 +1,35 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { ref, update, get, push, child, set, onValue } from 'firebase/database';
 import { auth } from '../../firebase';
-import { database } from '../../firebase';
+
+//redux
+import { useDispatch, useSelector } from 'react-redux';
+import { saveSelectedReview, editSelectedReview } from '../Redux/features/dataSlice';
 
 //icons
 import Edit from '../../assets/SVG/UserIcons/edit';
 import Star from '../../assets/SVG/UserIcons/Star';
 
-export default function Profilereviews({ setAddReview, providerID }) {
-  const [reviewList, setReviewList] = useState([]);
-  const [userHasRevied, setHasReviewed] = useState(false);
+export default function Profilereviews({ setAddReview, addReview }) {
+  const dispatch = useDispatch();
+  const reviewsList = useSelector((state) => state.data.reviewsData);
+  const selectedProvider = useSelector((state) => state.data.selectedProvider);
+
+  const [selectedProviderReviews, setSelectedProviderREviews] = useState([]);
   const starRating = [1,2,3,4,5];
 
   useEffect(() => {
-    get(child(ref(database), 'users/reviews/')).then((snap) => {
-      if (snap.exists()) {
-        let arr = [];
-          snap.forEach(reviews => {
-              if(reviews.val().providerID === providerID ){
-                arr.push(reviews.val())
-                // setReviewList(...reviewList, reviews.val());
-                if (reviews.val().userID === auth.currentUser.uid) {
-                  setHasReviewed(true);
-                }
-            }
-          })
-          setReviewList(arr);
-      }
-  })
-  .catch((err) => {
-      console.log(err);
-  })
+    //get all selected provider reviews
+    const temp = reviewsList.filter(review => review.providerID === selectedProvider.userID);
+    setSelectedProviderREviews(temp);
+    console.log(temp);
+    //check if user reviwed the provider
+    const reviewState = temp.filter(review => review.userID === auth.currentUser.uid);
+    if ( reviewState.length !== 0) dispatch(saveSelectedReview(reviewState[0]));
   },[]);
   
   const ReviewCard = ({ item }) => {
+    console.log();
     return (
       <View style={styles.cardContainer}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -58,22 +53,22 @@ export default function Profilereviews({ setAddReview, providerID }) {
 
   return ( 
     <View style={styles.container}>
-      {!userHasRevied && <View>
+      {addReview && <View>
         <Text>You havn't reviewed this provider yet</Text>
         <TouchableOpacity style={styles.buttonContainer} onPress={ () => setAddReview(true) }>
           <Text style={styles.buttonText}>Add review</Text>
         </TouchableOpacity>  
       </View>}
-      {reviewList.length > 0 &&
+      {selectedProviderReviews.length > 0 &&
        <View>
-          <Text style={styles.textStyling}>{`${reviewList.length} Reviews`}</Text>
+          <Text style={styles.textStyling}>{`${selectedProviderReviews.length} Reviews`}</Text>
           <FlatList 
-            data={reviewList}
+            data={selectedProviderReviews}
             renderItem={({item}) => <ReviewCard item={item}/>}
             keyExtractor={(item, id) => id}
           /> 
       </View>} 
-      {reviewList.length === 0 && <View>
+      {selectedProviderReviews.length === 0 && <View>
           <Text style={styles.textStyling}>No reviews yet</Text>
           <TouchableOpacity style={styles.buttonContainer} onPress={ () => setAddReview(true) }>
             <Text style={styles.buttonText}>Add review</Text>

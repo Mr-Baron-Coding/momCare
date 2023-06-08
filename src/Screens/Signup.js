@@ -36,7 +36,6 @@ export default function Signup({ navigation }) {
                 usertype: 'Provider',
                 about: '',
                 carearea: '',
-                cernqal: '',
                 contact: '',
                 reviewsList: ''
 

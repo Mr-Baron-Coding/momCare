@@ -7,7 +7,7 @@ import Welcome from './src/Screens/Welcome';
 import Login from './src/Screens/Login';
 import Signup from './src/Screens/Signup';
 import Homescreen from './src/Screens/CustomerScreens/Homescreen';
-import Map from './src/Screens/Map';
+// import Map from './src/Screens/Map';
 import Searchresults from './src/Screens/CustomerScreens/Searchresults';
 import ProviderDetailScreen from './src/Screens/CustomerScreens/ProviderDetailScreen';
 import ProviderHomeScreen from './src/Screens/ProviderHomeScreen';
@@ -32,7 +32,7 @@ export default function App() {
           <Stack.Screen options={{ headerShown: false }} name="Signup" component={Signup} />
           <Stack.Screen options={{ headerShown: false }} name="Homescreen" component={Homescreen} />
           <Stack.Screen options={{ headerShown: false }} name="ProviderHomeScreen" component={ProviderHomeScreen} />
-          <Stack.Screen options={{ headerShown: false }} name="Map" component={Map} />
+          {/* <Stack.Screen options={{ headerShown: false }} name="Map" component={Map} /> */}
           <Stack.Screen options={{ headerShown: false }} name="Searchresults" component={Searchresults} />
           <Stack.Screen options={{ headerShown: false }} name="ProviderDetail" component={ProviderDetailScreen} />
           <Stack.Screen options={{ headerShown: false }} name="Message" component={Message} />

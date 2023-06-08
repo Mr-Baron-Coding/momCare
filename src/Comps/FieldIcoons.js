@@ -3,6 +3,11 @@ import React from 'react';
 import { Wrap } from '@react-native-material/core';
 import { useNavigation } from '@react-navigation/native';
 
+//redux
+import { useSelector, useDispatch } from 'react-redux';
+// import { saveSelectedCareField, saveSelectedProvider } from '../'
+import { saveSelectedCareField, saveSelectedProvider } from '../Redux/features/dataSlice';
+
 //icons
 import Nut from '../../assets/SVG/nutritionist';
 import Lac from '../../assets/SVG/lac';
@@ -20,8 +25,9 @@ import Presupport from '../../assets/SVG/presupport';
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
-export default function FieldIcoons({ loggedUser, providersData, reviewsData }) {
+export default function FieldIcoons() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
     let [fontsLoaded] = useFonts({
         Poppins_700Bold, Poppins_400Regular
     });
@@ -44,6 +50,11 @@ export default function FieldIcoons({ loggedUser, providersData, reviewsData }) 
         {logo: <Presupport />, name: 'Personal development'}
       ]);
 
+    const handleMove = (item) => {
+      dispatch(saveSelectedCareField(item.name));
+      navigation.navigate('Searchresults');
+    };
+
   return (
     <View style={styles.container}>
       <Text style={styles.bodyHeader}>All fields of care</Text>
@@ -53,7 +64,8 @@ export default function FieldIcoons({ loggedUser, providersData, reviewsData }) 
               <TouchableOpacity 
                 key={i} 
                 style={styles.fieldItems} 
-                onPress={ () => navigation.navigate('Searchresults', { name: item.name, loggedUser: loggedUser, providersData: providersData, reviewsData: reviewsData }) }
+                // onPress={ () => navigation.navigate('Searchresults', { name: item.name, loggedUser: loggedUser, providersData: providersData, reviewsData: reviewsData }) }
+                onPress={ () => handleMove(item) }
               >
                 {item.logo}
                 <Text style={styles.Fieldheader}>{item.name}</Text>

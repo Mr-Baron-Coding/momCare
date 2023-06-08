@@ -2,6 +2,10 @@ import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react
 import React, { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
+//redux
+import { useDispatch, useSelector } from 'react-redux';
+import { saveSelectedProvider } from '../../Redux/features/dataSlice';
+
 // images
 import UserPic from '../../../assets/Images/placeholder.jpg';
 import Stars from '../../../assets/SVG/Stars';
@@ -9,8 +13,11 @@ import Stars from '../../../assets/SVG/Stars';
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 
-export default function Reviews({ loggedUser, providersData, reviewsData }) {
+export default function Reviews() {
+    const dispatch = useDispatch();
     const navigation = useNavigation();
+    const providersList = useSelector((state) => state.data.providersData);
+    const currentUserData = useSelector((state) => state.data.usedata);
 
     let [fontsLoaded] = useFonts({
         Poppins_700Bold,
@@ -19,9 +26,14 @@ export default function Reviews({ loggedUser, providersData, reviewsData }) {
         return null;
     };
 
+    const handleMove = (item) => {
+        dispatch(saveSelectedProvider(item));
+        navigation.navigate('ProviderDetail');
+    };
+
     const ProCard = ({ item }) => {
         return(
-            <TouchableOpacity style={styles.profCard} onPress={ () => navigation.navigate('ProviderDetail', {item: item, loggedUser: loggedUser} ) }>
+            <TouchableOpacity style={styles.profCard} onPress={ () => handleMove(item) }>
                 <Image 
                     style={{
                         resizeMode: 'cover',
@@ -43,7 +55,7 @@ export default function Reviews({ loggedUser, providersData, reviewsData }) {
     <View style={styles.container}>
         <Text style={styles.bodyHeader}>Recent reviews</Text>
         <FlatList 
-            data={providersData}
+            data={providersList}
             renderItem={({item}) => <ProCard item={item} />}
             keyExtractor={(item, i) => i}
             horizontal={true}

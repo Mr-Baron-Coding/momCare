@@ -1,21 +1,25 @@
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import React, { useEffect } from 'react';
 
+//redux
+import { useSelector } from 'react-redux';
+
 //fonts
 import { useFonts, Poppins_400Regular, Poppins_700Bold, Poppins_300Light } from '@expo-google-fonts/poppins';
 
 //icons
-import Phone from '../../assets/SVG/ContactIcons/Phone';
-import Site from '../../assets/SVG/ContactIcons/Site';
-import Mail from '../../assets/SVG/UserIcons/mail';
+import Phone from '../../../assets/SVG/ContactIcons/Phone';
+import Site from '../../../assets/SVG/ContactIcons/Site';
+import Mail from '../../../assets/SVG/UserIcons/mail';
 
-export default function ProfileAbout({ userName, about, carearea, mail, phone, site, fields, cernqual }) {
+export default function ProfileAbout() {
+  const selectedProvider = useSelector((state) => state.data.selectedProvider);
 
   const aboutList = [
-    { header: 'About', data: about, id: 'about1'},
-    { header: 'Certificates and qualification', data: cernqual, id: 'about2'},
-    { header: 'Care area', data: carearea, id: 'about3'},
-    { header: 'Contact info', data: {mail: mail, phone: phone, site: site}, id: 'about4'},
+    { header: 'About', data: selectedProvider.about, id: 'about1'},
+    { header: 'Certificates and qualification', data: selectedProvider.cernqual, id: 'about2'},
+    { header: 'Care area', data: selectedProvider.carearea, id: 'about3'},
+    { header: 'Contact info', data: {mail: selectedProvider.mail, phone: selectedProvider.phone, site: selectedProvider.site}, id: 'about4'},
   ];
 
   let [fontsLoaded] = useFonts({
@@ -35,7 +39,7 @@ export default function ProfileAbout({ userName, about, carearea, mail, phone, s
               data={item.data}
               listKey="about"
               renderItem={({item}) => <QualCard items={item} />}
-              keyExtractor={(items, id) => id}
+              keyExtractor={items => items.id}
             />
         }
         { item.id === 'about3' && 
@@ -105,9 +109,6 @@ const styles = StyleSheet.create({
   fieldsText: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 12,
-    // marginBottom: 5,
-    // paddingHorizontal: 15,
-    // paddingVertical: 5,
     lineHeight: 18,
     color: '#562349'
   },
@@ -130,9 +131,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingRight: 5,
     color: '#562349'
-  },
-  contactContainer: {
-    flexDirection: 'column'
   },
   CardContainer: {
     flexDirection: 'row'

@@ -1,36 +1,40 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+//redux
+import { useSelector, useDispatch } from 'react-redux';
+import { saveLoggedProviderData } from '../../../Redux/features/providerDataSlice';
 
 import { ref, get, update } from 'firebase/database';
-import { database } from '../../../../firebase';
-import { useEffect } from 'react';
+import { auth, database } from '../../../../firebase';
 
-export default function AboutSection({ data, showAbout, setShowAbout }) {
-    // const [isEditing, setEditing] = useState(true);
+export default function AboutSection({ showAbout, setShowAbout }) {
+    const dispatch = useDispatch();
+    const providerData = useSelector((state) => state.providerData.loggedProvider);
     const [aboutChange, setAbout] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (data.about.length > 0) {
-            setAbout(data.about);
+            setAbout(providerData.about);
             setShowAbout(false);
-        }
-    },[]);
+    },[providerData]);
 
     const handleSubmit = () => {
-        setLoading(prv => prv = true);
-        update(ref(database, 'users/providers/' + data.userID + '/' ), {
+        setLoading(true);
+        update(ref(database, 'users/providers/' + auth.currentUser.uid + '/' ), {
             about: aboutChange
         })
         .then(() => {
             console.log('Saved');
+            dispatch(saveLoggedProviderData({...providerData, about: aboutChange}))
         })
         .then(() => {
-            setLoading(prv => prv = false);
+            setLoading(false);
             setShowAbout(false);
         })
         .catch((err) => {
             console.log(err);
+            setLoading(false);
         })
     };
 
@@ -46,11 +50,11 @@ export default function AboutSection({ data, showAbout, setShowAbout }) {
                     style={styles.inputTextStyle}
                 />
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 20 }}>
+                    {aboutChange.length > 0 && <TouchableOpacity style={styles.buttonStyle} onPress={() => setAbout('')}>
+                        <Text style={styles.buttonTextStyle}>Clear</Text>
+                    </TouchableOpacity>}
                     <TouchableOpacity style={styles.buttonStyle} onPress={() => handleSubmit()}>
                         <Text style={styles.buttonTextStyle}>{loading ? <ActivityIndicator size='small' color='#562349' /> : 'Save'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonStyle} onPress={() => setAbout('')}>
-                        <Text style={styles.buttonTextStyle}>Clear</Text>
                     </TouchableOpacity>
                 </View>
             </View>

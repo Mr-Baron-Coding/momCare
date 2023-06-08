@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
+import { Inter_400Regular } from '@expo-google-fonts/inter';
+
 import { getDatabase, ref, child, get, set, push, query, orderByChild, orderByKey, update, remove } from "firebase/database";
 import { database } from '../../../firebase';
 import { auth } from '../../../firebase';
@@ -14,6 +16,7 @@ import MenuScreen from '../../Comps/Menu';
 //redux
 import { useDispatch, useSelector } from 'react-redux';
 import { saveLikedata } from '../../Redux/features/dataSlice';
+import { saveSelectedProvider } from '../../Redux/features/dataSlice';
 
 // images
 import Placeholder from '../../../assets/Images/placeholder.jpg';
@@ -22,41 +25,47 @@ import Placeholder from '../../../assets/Images/placeholder.jpg';
 import Heart from '../../../assets/SVG/UserIcons/heart';
 import Footer from '../../Comps/Footer';
 
-export default function Searchresults({ route }) {
+export default function Searchresults() {
     const navigation = useNavigation();
     const dispatch = useDispatch();
+    const providersList = useSelector((state) => state.data.providersData);
+    const selectedCareField = useSelector((state) => state.data.selectedCareField);
     const likeList = useSelector((state) => state.data.likeData);
-    const { name, providersData, reviewsData, loggedUser } = route.params;
+    const reviewsList = useSelector((state) => state.data.reviewsData);
+    const loggedUser = useSelector((state) => state.data.userData);
+
     const [menuWindow, setMenu] = useState(false);
     const [listOFProviders, setProviders] = useState([]);
-    const [localLikeList, setLocalLikeList] = useState([]);
-    const [isLoading, setLoading] = useState(false);
     const [shownComp, setShownComp] = useState(0);
 
     //filter providers with correct field of care
     useEffect(() => {
-        let arr = [];
-        let obj = {};
-        providersData.forEach((item) => {
-            obj = item;
-            if (item.cernqual) {
-                item.cernqual.forEach(field => {
-                    if (field.fields === name) {
-                        obj = {...obj, selected: true}
-                    }
-                })
+        //get all providers with selected care field
+        providersList.forEach((item,index) => {
+            if ( item.cernqual !== undefined ) {
+                const  listToShow = item.cernqual.filter(field => field.fields === selectedCareField);
+                //get all selected provider reviews
+                const temp = reviewsList.filter(review => review.id === item.id);
+                const day = new Date().getDate(temp[temp.length-1].timeStamp);
+                const month = new Date().getMonth(temp[temp.length-1].timeStamp) + 1;
+                const year = new Date().getFullYear(temp[temp.length-1].timeStamp)
+                if (listToShow.length !== 0 ) {
+                    setProviders([...listOFProviders, {...item, timeStamp: day + '/' + month + '/' + year }]);
+                }
             }
-            arr.push(obj);
-            obj = {};
         });
-        setProviders(arr);
     },[]);
 
     let [fontsLoaded] = useFonts({
-        Poppins_700Bold, Poppins_400Regular
+        Poppins_700Bold, Poppins_400Regular, Inter_400Regular
     });
     if (!fontsLoaded) {
         return null;
+    };
+
+    const handleMove = (item) => {
+        dispatch(saveSelectedProvider(item));
+        navigation.navigate('ProviderDetail');
     };
 
     // add like to provider
@@ -73,7 +82,6 @@ export default function Searchresults({ route }) {
         })
         .catch((error) => {
             console.error(error);
-            // setLoading(prev => prev = false);
         })
     };
 
@@ -81,7 +89,6 @@ export default function Searchresults({ route }) {
     const removeLike = (provID) => {
         const disLiked = likeList.filter(like => like.provID === provID);
         const liked = likeList.filter(like => like.provID !== provID);
-        // setLocalLikeList(liked);
         remove(child(ref(database), 'users/customers/' + auth.currentUser.uid + '/likes/' + disLiked[0].likeID + '/'))
         .then(() =>{
             console.log('removed');
@@ -95,11 +102,14 @@ export default function Searchresults({ route }) {
     };
 
     const ProvCard = ({ item }) => {
+        //
         const isLiked = likeList.filter(like => like.provID === item.userID);
+        //get years of care in field
+        const yearsOfExp = item.cernqual.filter(field => field.fields === selectedCareField);
         return (
             <View style={styles.cardContainer}>
                 <View style={styles.cardTextTop}>
-                    <TouchableOpacity style={styles.pressContainer} onPress={ () => navigation.navigate('ProviderDetail', {item: item, name: name, loggedUser: loggedUser, likeList: likeList} ) }>
+                    <TouchableOpacity style={styles.pressContainer} onPress={ () => handleMove(item) }>
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Image
                                 style={{
@@ -112,12 +122,20 @@ export default function Searchresults({ route }) {
                             />
                         </View>
                         <View style={{ gap: 5 }}>
-                            <Text style={{ fontFamily: 'Poppins_700Bold', color: '#562349', fontSize: 14, lineHeight: 18 }}>{item.userName}</Text>
-                            <Text style={{ fontFamily: 'Poppins_400Regular', color: '#562349', fontSize: 12, lineHeight: 14 }}>{name}</Text>
-                            <Text style={{ fontFamily: 'Poppins_400Regular', color: '#8C8C8C', fontSize: 10, lineHeight: 12 }}>Last review 00.00.0000</Text>
+                            <Text style={{ fontFamily: 'Poppins_700Bold', color: '#562349', fontSize: 16, lineHeight: 18 }}>{item.userName}</Text>
+                            <Text style={{ fontFamily: 'Poppins_400Regular', color: '#562349', fontSize: 14, lineHeight: 14 }}>{selectedCareField}</Text>
+                            <Text style={{ fontFamily: 'Poppins_400Regular', color: '#8C8C8C', fontSize: 12, lineHeight: 12 }}>{`Last review ${item.timeStamp}`}</Text>
                             <View style={{ flexDirection: 'row', gap: 15 }}>
-                                <Text style={{ height: 20, width: 60, borderRadius: 40, backgroundColor: '#C4A7B5', color: '#FFFFFF', fontFamily: 'Poppins_700Bold', fontSize: 12, paddingVertical: 3, textAlign: 'center' }}>{item.review}</Text>
-                                <Text style={{ height: 20, width: 60, borderRadius: 40, backgroundColor: '#C4A7B5', color: '#FFFFFF', fontFamily: 'Poppins_700Bold' }}>10 Years</Text>
+                                <View style={styles.reviewNExpContainerStyle}>
+                                    <Text style={styles.revNExpTextStyle}>
+                                        {item.review}
+                                    </Text>
+                                </View>
+                                <View style={styles.reviewNExpContainerStyle}>
+                                    <Text style={styles.revNExpTextStyle}>
+                                        {yearsOfExp[0].year}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -136,14 +154,12 @@ export default function Searchresults({ route }) {
 
   return ( 
     <View style={{ height: '100%', justifyContent: 'space-between' }}>
-        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} searchFieldFill={route.params.name} likeList={likeList} />
+        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} searchFieldFill={selectedCareField} likeList={likeList} />
         <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
-        {isLoading ? <ActivityIndicator size='large' color='#C4A7B5' /> :
-        shownComp === 0 && <View style={{ flex: 1 }}>
-            <Text style={styles.bodyHeader}>{route.params.name}</Text>
+        {shownComp === 0 && <View style={{ flex: 1 }}>
             <FlatList 
                 data={listOFProviders}
-                renderItem={({item}) => item.selected && <ProvCard item={item} />}
+                renderItem={({item}) => <ProvCard item={item} />}
                 keyExtractor={(item, id) => id}
                 initialNumToRender={5}
             />
@@ -194,5 +210,19 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins_700Bold',
         color: '#FFFFFF',
         
-    }
+    },
+    reviewNExpContainerStyle: {
+        textAlign: 'center',
+        alignContent: 'center', 
+        justifyContent: 'center',
+        backgroundColor: '#C4A7B5', 
+        width: 50,
+        borderRadius: 17
+    },
+    revNExpTextStyle: {
+        color: '#FFFFFF', 
+        fontFamily: 'Inter_400Regular', 
+        fontSize: 12, 
+        paddingVertical: 5
+    },
 });

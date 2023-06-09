@@ -43,17 +43,26 @@ export default function Login({ navigation, extraData }) {
             .catch((error) => {
               console.error(error);
             });
+    }, []);
+    useEffect(() => {
       get(ref(database, 'users/providers/'))
       .then((snap) => {
         if (snap.exists()) {
-          snap.forEach(usersID => {
-            setCheckProvider([...checkForProvider, usersID.val().userID])
+          let arr = [];
+          snap.forEach(users => {
+            users.forEach(id =>{
+              let ob = {};
+              if (id.key === 'userID') {
+                arr.push(id.val());
+              }
+            })
           })
+          setCheckProvider(arr);
         }
       }).catch((err) => {
         console.log(err + `Can't get user ID's...`);
       })
-    }, []);
+    },[]);
 
     const handleSigin = () => {
         signInWithEmailAndPassword(auth, mail, password)            

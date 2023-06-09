@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Switch } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { ref, update, get, push, child, set, onValue } from 'firebase/database';
-import { auth } from '../../firebase';
-import { database } from '../../firebase';
+import { auth } from '../../../firebase';
+import { database } from '../../../firebase';
 
 import { Picker } from '@react-native-picker/picker';
 
@@ -10,8 +10,8 @@ import { Picker } from '@react-native-picker/picker';
 import { useSelector, useDispatch } from 'react-redux';
 
 //icon
-import Star from '../../assets/SVG/UserIcons/Star';
-import { editSelectedReview, editReviewData } from '../Redux/features/dataSlice';
+import Star from '../../../assets/SVG/UserIcons/Star';
+import { editSelectedReview, editReviewData, addReviewToList } from '../../Redux/features/dataSlice';
 
 export default function ProfileAddReview({ addReview, setAddReview, providerID, userName, item }) {
     const pickerRef = useRef();
@@ -36,15 +36,18 @@ export default function ProfileAddReview({ addReview, setAddReview, providerID, 
         const temp = reviewsList.filter(review => review.providerID === selectedProvider.userID);
         setSelectedProviderREviews(temp);
 
-        //check if user revied the provider
+        //check if user reviewed the provider
         const reviewState = temp.filter(review => review.userID === auth.currentUser.uid);
         if ( reviewState.length !== 0) {
             setReviewed(true);
+            setReviewField(reviewState[0].reviewBody);
+            setSelectedField(reviewState[0].selectedField);
+            setStars(reviewState[0].reviewScore);
+        } else {
+            setSelectedField(selectedProvider.cernqual[0].fields);
         }
         console.log(reviewState[0]);
-        setReviewField(reviewState[0].reviewBody);
-        setSelectedField(reviewState[0].selectedField);
-        setStars(reviewState[0].reviewScore);
+        
     },[]);
 
     //add new review
@@ -74,6 +77,9 @@ export default function ProfileAddReview({ addReview, setAddReview, providerID, 
         ob['users/providers/' + selectedProvider.userID + '/reviewsList/' + keyVal] = addProviderReview;
 
         update(ref(database), ob)
+        .then(() => {
+            dispatch(addReviewToList(reviewData));
+        })
         .then(() => {
             console.log('Saved');
         })

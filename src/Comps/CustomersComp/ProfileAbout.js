@@ -32,7 +32,7 @@ export default function ProfileAbout() {
   const AboutCard = ({item}) => {
     return (
       <View style={styles.container}>
-        <Text style={{ fontFamily: 'Poppins_700bold', color: '#562349', fontSize: 18 }}>{item.header}</Text>
+        <Text style={{ fontFamily: 'Poppins_700bold', color: '#562349', fontSize: 16 }}>{item.header}</Text>
         { item.id === 'about1' && <Text style={{ fontFamily: 'Poppins_300Light', color: '#562349', fontSize: 14 }}>{item.data}</Text> }
         { item.id === 'about2' &&
            <FlatList 

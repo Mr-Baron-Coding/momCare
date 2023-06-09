@@ -1,17 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useEffect } from 'react';
+import React from 'react';
 import UserHeader from '../Comps/CustomersComp/UserHeader';
-
-
-// material
-import { Divider } from '@rneui/base';
 
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 import Footer from '../Comps/Footer';
-
-//icons
-import Logo from '../../assets/SVG/logo';
 
 export default function Homescreen({ navigation }) {
     let [fontsLoaded] = useFonts({
@@ -49,7 +42,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FAFAFA'
     },
     body: {
-        // height: '50%',
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -70,7 +62,6 @@ const styles = StyleSheet.create({
     loginText: {
         color: '#FFFFFF',
         fontSize: 16,
-        // fontWeight: '700',
         fontFamily: 'Poppins_700Bold'
     },
     signupButton: {

@@ -2,7 +2,9 @@ import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInp
 import React, { useState, useEffect } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { ref, set, get, child, push } from 'firebase/database';
+import { ref, set } from 'firebase/database';
+// import { ref as stRef, uploadBytes } from 'firebase/storage'
+// import { storage } from '../../firebase';
 import { auth, database } from '../../firebase';
 
 // icons
@@ -10,6 +12,8 @@ import Logo from '../../assets/SVG/logo';
 import Back from '../../assets/SVG/UserIcons/back';
 import { Feather } from '@expo/vector-icons'; 
 
+//images
+import PlaceHolderPic from '../../assets/Images/placeholder.jpg'
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
@@ -37,10 +41,26 @@ export default function Signup({ navigation }) {
                 about: '',
                 carearea: '',
                 contact: '',
-                reviewsList: ''
+                cernqual: '',
+                messages: '',
+                phone: '',
+                reviewsList: '',
+                likesList: '',
+                site: '',
+                profilePic: 'gs://momcare-bc985.appspot.com/placeholders/placeholder.jpg'
 
             })
         })
+        // .then(() => {
+        //     uploadBytes(stRef(storage, 'Profile-Pictures/Placeholder', PlaceHolderPic))
+        //     .then((snapshot) => {
+        //         console.log(snapshot);
+        //         console.log('Worked');
+        //     })
+        //     .catch((err) => {
+        //         console.log(err + 'Not working');
+        //     })
+        // })
         .then(() => { navigation.navigate('ProviderHomeScreen')})
         .catch((error) => {
             const errorCode = error.code;

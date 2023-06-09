@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import About from '../../Comps/CustomersComp/ProfileAbout';
-import Review from '../../Comps/ProfileReviews';
-import ProfileAddReview from '../../Comps/ProfileAddReview';
+import Review from '../../Comps/CustomersComp/ProfileReviews';
+import ProfileAddReview from '../../Comps/CustomersComp/ProfileAddReview';
 import Footer from '../../Comps/Footer';
 import UserHeader from '../../Comps/CustomersComp/UserHeader';
 import MessagesScreen from './MessagesScreen';

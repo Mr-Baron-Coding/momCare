@@ -6,21 +6,21 @@ import { useNavigation } from '@react-navigation/native';
 //redux
 import { useSelector, useDispatch } from 'react-redux';
 // import { saveSelectedCareField, saveSelectedProvider } from '../'
-import { saveSelectedCareField, saveSelectedProvider } from '../Redux/features/dataSlice';
+import { saveSelectedCareField, saveSelectedProvider } from '../../Redux/features/dataSlice';
 
 //icons
-import Nut from '../../assets/SVG/nutritionist';
-import Lac from '../../assets/SVG/lac';
-import Sleep from '../../assets/SVG/sleep';
-import Doula from '../../assets/SVG/doula';
-import Osteopathy from '../../assets/SVG/osteopathy';
-import Acupuncture from '../../assets/SVG/acupuncture';
-import PostDula from '../../assets/SVG/pDula';
-import Reflo from '../../assets/SVG/reflo';
-import Homoyo from '../../assets/SVG/homoyphaty';
-import BabyDav from '../../assets/SVG/babydev';
-import PregSupport from '../../assets/SVG/pregsupport'
-import Presupport from '../../assets/SVG/presupport';
+import Nut from '../../../assets/SVG/nutritionist';
+import Lac from '../../../assets/SVG/lac';
+import Sleep from '../../../assets/SVG/sleep';
+import Doula from '../../../assets/SVG/doula';
+import Osteopathy from '../../../assets/SVG/osteopathy';
+import Acupuncture from '../../../assets/SVG/acupuncture';
+import PostDula from '../../../assets/SVG/pDula';
+import Reflo from '../../../assets/SVG/reflo';
+import Homoyo from '../../../assets/SVG/homoyphaty';
+import BabyDav from '../../../assets/SVG/babydev';
+import PregSupport from '../../../assets/SVG/pregsupport'
+import Presupport from '../../../assets/SVG/presupport';
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';

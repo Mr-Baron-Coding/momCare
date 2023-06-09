@@ -6,9 +6,9 @@ import { database } from '../../../firebase';
 import { auth } from '../../../firebase';
 
 import UserHeader from '../../Comps/CustomersComp/UserHeader';
-import FieldIcoons from '../../Comps/FieldIcoons';
+import FieldIcoons from '../../Comps/CustomersComp/FieldIcoons';
 import Reviews from '../../Comps/CustomersComp/Reviews';
-import News from '../../Comps/News';
+import News from '../../Comps/CustomersComp/News';
 // import Map from '../Map';
 import Footer from '../../Comps/Footer';
 import MenuScreen from '../../Comps/Menu';
@@ -16,19 +16,20 @@ import LikedScreen from './LikedScreen';
 import MessagesScreen from './MessagesScreen';
 
 // redux
-import { useDispatch } from 'react-redux';
-import { saveLikedata, saveMessageData, saveProvidersData, saveReviewsData, saveUserData } from '../../Redux/features/dataSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { changetabScreen, saveLikedata, saveMessageData, saveProvidersData, saveReviewsData, saveUserData } from '../../Redux/features/dataSlice';
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 
 export default function Homescreen() {
   const dispatch = useDispatch();
+  const tabScreen = useSelector((state) => state.data.tabScreen);
   const [menuWindow, setMenu] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [shownComp, setShownComp] = useState(0);
 
   useEffect(() => {
+    tabScreen !== 0 && dispatch(changetabScreen(0));
     const dbRef = ref(database);
     setLoading(prev => prev = true);
     get(child(dbRef, 'users/providers/')).then((snapshot) => {
@@ -40,6 +41,10 @@ export default function Homescreen() {
                 user.forEach(item => {
                   if (!item.hasChildren()) {
                       arr[item.key] = item.val();
+                      if (item.key === 'carearea' || item.key === 'cernqual' || item.key === 'cernqual' || item.key === 'reviewsList') {
+                        arr[item.key] = [];
+                      }
+                      
                   }
                   if (item.hasChildren()) {
                       let areaList = [];
@@ -59,6 +64,7 @@ export default function Homescreen() {
                       })
                   }
               });
+              if (arr['reviewsList'] === undefined )  arr['reviewsList'] = [];
               arrList.push(arr);
               arr = {};
           })
@@ -85,31 +91,35 @@ export default function Homescreen() {
       console.error(error);
       })
     .then(() => {
-      // get all message threads 
+      // get all users messages threads 
       get(child(dbRef, 'users/messages/')).then((snapshot) => {
         if (snapshot.exists()) {  
           let arr = [];
           snapshot.forEach(messID => {
             let bodyFlow = [];       
             let messObj = {}; 
-            messID.forEach(messItem => {  
-              // go through all messages threads
-              if (messItem.hasChildren()){
-                // go through all items in message thread
-                let bodyI ={}; 
-                messItem.forEach(bodyItem => {
-                  //if message thread has messages
-                  bodyI[bodyItem.key] = bodyItem.val();
-                })
-                bodyFlow.push(bodyI);
-                bodyI ={};
+            messID.forEach(messItem => {
+                // go through all messages threads
+                if (messItem.hasChildren()){
+                  // go through all items in message thread
+                  let bodyI ={}; 
+                  messItem.forEach(bodyItem => {
+                    //if message thread has messages
+                    bodyI[bodyItem.key] = bodyItem.val();
+                  })
+                  bodyFlow.push(bodyI);
+                  bodyI ={};
 
-                messObj['body'] = bodyFlow;
-              } else {
-                  messObj[messItem.key] = messItem.val();
-              }   
+                  messObj['body'] = bodyFlow;
+
+                } else { 
+                    messObj[messItem.key] = messItem.val();
+                }
             })
-            arr.push(messObj);
+            //check if connected to current user
+            if (messObj['toID'] === auth.currentUser.uid || messObj['fromID'] === auth.currentUser.uid) {
+              arr.push(messObj);
+            }  
             messObj = {};
           })
           dispatch(saveMessageData(arr));
@@ -175,17 +185,17 @@ const Data = [
 
   return ( isLoading ? <ActivityIndicator /> :
     <View style={styles.container}>
-      <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} />
+      <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} />
       <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
-      {shownComp === 0 && 
+      {tabScreen === 0 && 
         <FlatList
           data={Data}
           renderItem={({item}) => item.screen}
           keyExtractor={item => item.id}
           contentContainerStyle={{ gap: 10 }}
         />}
-      {shownComp === 1 && <MessagesScreen />}
-      {shownComp === 2 && <LikedScreen />}
+      {tabScreen === 1 && <MessagesScreen />}
+      {tabScreen === 2 && <LikedScreen />}
     </View>
   )
 };

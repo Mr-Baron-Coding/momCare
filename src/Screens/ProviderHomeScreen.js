@@ -9,8 +9,10 @@ import Footer from '../Comps/Footer';
 import Menu from '../Comps/Menu';
 
 //redux
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { screenChange } from '../Redux/features/providerDataSlice';
 
+//firebase
 import { ref, get } from "firebase/database";
 import { database } from '../../firebase';
 import { auth } from '../../firebase';
@@ -21,9 +23,8 @@ import { saveLoggedProviderData } from '../Redux/features/providerDataSlice';
 
 export default function ProviderHomeScreen() {
   const dispatch = useDispatch();
-  const [userData, setData] = useState({});
+  const tabNavScreens = useSelector((state) => state.providerData.tabNavScreens);
   const [isLoading, setLoading] = useState(true);
-  const [tabScreen, setScreen] = useState(1);
   const [menuWindow, setMenu] = useState(false);
   const [shownComp, setShownComp] = useState(0);
   
@@ -34,9 +35,12 @@ export default function ProviderHomeScreen() {
           let provObj = {};
           // check if providers have array of messages or certifications
           snapshot.forEach(items => {
-            if ( items.key !== 'messages' && items.key !== 'cernqual' && items.key !== 'carearea' && items.key !== 'reviewList') {
+            if ( items.key === 'cernqual' || items.key === 'messages' || items.key === 'carearea' || items.key === 'reviewsList' ) {
+              provObj[items.key] = [];
+            } else {
               provObj[items.key] = items.val();
-            } else if ( items.hasChildren ) {
+            }
+            if ( items.hasChildren ) {
               let cerList = [];
               items.forEach(arr => {
                 //check messages
@@ -84,9 +88,11 @@ export default function ProviderHomeScreen() {
               })
             }
           })
-          setData(provObj);
-          dispatch(saveLoggedProviderData(provObj))
-          setLoading(false)
+          dispatch(saveLoggedProviderData(provObj));
+          setTimeout(() => {
+            setLoading(false);
+
+          }, 300)
         }
       })
       .catch((error) => {
@@ -109,19 +115,19 @@ export default function ProviderHomeScreen() {
       { !isLoading ? 
       <View style={{ flexGrow: 1 }}>
         <View style={styles.selectTabs}>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(1) }>
-                <Text style={[tabScreen === 1 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Profile</Text>
+            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => dispatch(screenChange(1)) }>
+                <Text style={[tabNavScreens === 1 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(2) }>
-                <Text style={[tabScreen === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
+            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => dispatch(screenChange(2)) }>
+                <Text style={[tabNavScreens === 2 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Reviews</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => setScreen(3) }>
-                <Text style={[tabScreen === 3 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Messages</Text>
+            <TouchableOpacity style={{ flex: 1, alignItems: 'center' }} onPress={ () => dispatch(screenChange(3)) }>
+                <Text style={[tabNavScreens === 3 ? { fontFamily: 'Poppins_700Bold', backgroundColor: '#562349', color : '#FFFFFF', borderRadius: 20 } : { fontFamily: 'Quicksand', color: '#562349', }, { width: '90%', textAlign: 'center' }]}>Messages</Text>
             </TouchableOpacity>
         </View>
-         {tabScreen === 1 && <AboutComp />} 
-         {tabScreen === 2 && <ReviewsComp />} 
-         {tabScreen === 3 && <MessageComp />} 
+         {tabNavScreens === 1 && <AboutComp />} 
+         {tabNavScreens === 2 && <ReviewsComp />} 
+         {tabNavScreens === 3 && <MessageComp />} 
       </View>
       : <ActivityIndicator size='large' color='#562349' /> }
       <Footer />
@@ -148,6 +154,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular', 
     color: '#562349', 
     fontSize: 14,  
-     
   }
 });

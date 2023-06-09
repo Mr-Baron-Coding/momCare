@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { auth } from '../../firebase';
+import { auth } from '../../../firebase';
 
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { saveSelectedReview, editSelectedReview } from '../Redux/features/dataSlice';
+import { saveSelectedReview, editSelectedReview } from '../../Redux/features/dataSlice';
 
 //icons
-import Edit from '../../assets/SVG/UserIcons/edit';
-import Star from '../../assets/SVG/UserIcons/Star';
+import Edit from '../../../assets/SVG/UserIcons/edit';
+import Star from '../../../assets/SVG/UserIcons/Star';
 
 export default function Profilereviews({ setAddReview, addReview }) {
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ export default function Profilereviews({ setAddReview, addReview }) {
   },[]);
   
   const ReviewCard = ({ item }) => {
-    console.log();
+    console.log(item);
     return (
       <View style={styles.cardContainer}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

@@ -6,34 +6,22 @@ import CertSection from './AboutCards/CertSection';
 import CareAreaSection from './AboutCards/CareAreaSection';
 import ContactSection from './AboutCards/ContactSection';
 
+//redux
+import { useSelector, useDispatch } from 'react-redux';
+import { changeEditOption } from '../../Redux/features/providerDataSlice';
+
 //icons
 import Edit from '../../../assets/SVG/UserIcons/edit';
 
 export default function AboutComp() {
+    const dispatch = useDispatch();
+    const sectionEdit = useSelector((state) => state.providerData.providerHomescreenSections);
     const aboutList = [
         { header: 'About', id: 'about1'},
-        { header: 'Certificates and qualification', id: 'about2'},
+        { header: 'Certification and qualification', id: 'about2'},
         { header: 'Care area', id: 'about3'},
         { header: 'Contact info', id: 'about4'},
     ];
-
-    const [showAbout, setShowAbout] = useState(true);
-    const [showCert, setShowCert] = useState(true);
-    const [showArea, setShowArea] = useState(true);
-    const [showContact, setShowContact] = useState(true);
-
-    const changeShowAbout = (x) => {
-        setShowAbout(x);
-    };
-    const changeShowCert = (x) => {
-        setShowCert(x);
-    };
-    const changeShowArea = (x) => {
-        setShowArea(x);
-    };
-    const changeShowContact = (x) => {
-        setShowContact(x);
-    };
 
     // editable icon control
     const ProfileEditCard = ({ item }) => {
@@ -41,15 +29,23 @@ export default function AboutComp() {
             <View style={styles.cardContainer}>
                 <View style={styles.cardHeaderContainer}>
                     <Text style={styles.cardTextStyle}>{item.header}</Text>
-                    { (!showAbout && item.header === 'About') && <TouchableOpacity onPress={ () => {setShowAbout(!showAbout)}}><Edit /></TouchableOpacity> }
-                    { (!showCert && item.header === 'Certificates and qualification') && <TouchableOpacity onPress={ () => {setShowCert(!showCert)}}><Edit /></TouchableOpacity> }
-                    { (!showArea && item.header === 'Care area') && <TouchableOpacity onPress={ () => {setShowArea(!showArea)}}><Edit /></TouchableOpacity> }
-                    { (!showContact && item.header === 'Contact info') && <TouchableOpacity onPress={ () => {setShowContact(!showContact)}}><Edit /></TouchableOpacity> }
+                    { (!sectionEdit.showAbout && item.header === 'About') && 
+                        <TouchableOpacity onPress={ () => dispatch(changeEditOption({ type: 'showAbout', state: true }))}>
+                            <Edit />
+                        </TouchableOpacity> }
+                    { (!sectionEdit.showCert && item.header === 'Certification and qualification') &&
+                        <TouchableOpacity onPress={ () => dispatch(changeEditOption({ type: 'showCert', state: true })) }>
+                            <Edit />
+                        </TouchableOpacity> }
+                    { (!sectionEdit.showArea && item.header === 'Care area') && 
+                        <TouchableOpacity onPress={ () => dispatch(changeEditOption({ type: 'showArea', state: true }))}>
+                            <Edit />
+                        </TouchableOpacity> }
                 </View>
-                {item.id === 'about1' && <AboutSection showAbout={showAbout} setShowAbout={(x) => changeShowAbout(x)} />}
-                {item.id === 'about2' && <CertSection showCert={showCert} setShowCert={(x) => changeShowCert(x)} />}
-                {item.id === 'about3' && <CareAreaSection showArea={showArea} setShowArea={(x) => changeShowArea(x)} />}
-                {item.id === 'about4' && <ContactSection showContact={showContact} setShowContact={(x) => changeShowContact(x)} />}
+                {item.id === 'about1' && <AboutSection />}
+                {item.id === 'about2' && <CertSection />}
+                {item.id === 'about3' && <CareAreaSection />}
+                {item.id === 'about4' && <ContactSection />}
             </View>
         )
     };

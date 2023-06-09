@@ -1,28 +1,32 @@
 import { StyleSheet, Text, View, TouchableOpacity, Animated, TextInput } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 //rduex
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 //icons
 import Logo from '../../../assets/SVG/logo';
-import Back from '../../../assets/SVG/UserIcons/back';
 //>> icons row
 import Heart from '../../../assets/SVG/UserIcons/heart';
 import MenuIcon from '../../../assets/SVG/UserIcons/menu';
 import Mail from '../../../assets/SVG/UserIcons/mail';
 import Search from '../../../assets/SVG/UserIcons/search';
+import Back from '../../../assets/SVG/UserIcons/back';
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
+import { changetabScreen } from '../../Redux/features/dataSlice';
 
-export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, showHeaderText=false, setMenu, setShownComp, searchFieldFill='', messActive=false, provName='', isLookingAtProvider=false }) {
+export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, showHeaderText=false, setMenu, searchFieldFill='', messActive=false, provName='', isLookingAtProvider=false }) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const likeList = useSelector((state) => state.data.likeData);
   const loggedUser = useSelector((state) => state.data.userData);
   const selectedProvider = useSelector((state) => state.data.selectedProvider);
+
   const slideAnimation = useRef(new Animated.Value(heightVar)).current;
+
   const [isSearchOpen, setOpenSearch] = useState(false);
   const [searchByField, setSearchField] = useState('');
   const [searchByLocation, setSearchLocation] = useState('');
@@ -80,13 +84,13 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
       {showUserIcons && 
         <View style={styles.iconRow}>
           <TouchableOpacity onPress={ () => slide(isSearchOpen ? 1 : 0) }><Search /></TouchableOpacity>
-          <TouchableOpacity onPress={ () => setShownComp(1) }><Mail /></TouchableOpacity>
-          <TouchableOpacity onPress={ () => setShownComp(2) }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity>
+          <TouchableOpacity onPress={ () => dispatch(changetabScreen(1)) }><Mail /></TouchableOpacity>
+          <TouchableOpacity onPress={ () => dispatch(changetabScreen(2)) }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity>
           <TouchableOpacity onPress={ () => setMenu(true)}><MenuIcon /></TouchableOpacity>
         </View>}
         {/* logog container */}
       <View style={styles.logoContainer}>
-        <TouchableOpacity onPress={ () => setShownComp(0) }>
+        <TouchableOpacity onPress={ () => dispatch(changetabScreen(0)) }>
           <Logo height={logoHeight} width={logoWidth} />
         </TouchableOpacity>
       </View>

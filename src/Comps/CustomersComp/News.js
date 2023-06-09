@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, FlatList, Image } from 'react-native';
 import React from 'react';
 
-import Placeholder from '../../assets/Images/newsPlaceholder.png';
+import Placeholder from '../../../assets/Images/newsPlaceholder.png';
 
 // fonts
 import { Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';

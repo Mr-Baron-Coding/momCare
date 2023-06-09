@@ -3,14 +3,22 @@ import { createSlice } from "@reduxjs/toolkit";
 export const providerDataSlice = createSlice({
     name: 'providerData',
     initialState: {
-        loggedProvider: {}
+        loggedProvider: {},
+        tabNavScreens: 1,
+        providerHomescreenSections: { 
+            showAbout: true, 
+            showCert: true, 
+            showArea: true, 
+            showContact: true }
     },
     reducers: {
         saveLoggedProviderData: (state, action) => {
             state.loggedProvider = action.payload;
         },
         saveLoggedProviderCerFields: (state,action) => {
-            state.loggedProvider = {...state.loggedProvider, 
+            state.loggedProvider.cernqual.length === 0 ? 
+            state.loggedProvider = { ...state.loggedProvider, cernqual: action.payload }
+            : state.loggedProvider = {...state.loggedProvider, 
                                         cernqual: [...state.loggedProvider.cernqual, action.payload]
                                     };
         },
@@ -34,9 +42,13 @@ export const providerDataSlice = createSlice({
             state.loggedProvider = { ...state.loggedProvider, carearea: newArr};
         },
         editLoggedProviderPhone: (state, action) => {
-            console.log(action.payload);
             state.loggedProvider = { ...state.loggedProvider, [action.payload.type]: action.payload.field }
-
+        },
+        screenChange: (state, action) => {
+            state.tabNavScreens = action.payload;
+        },
+        changeEditOption: (state, action) => {
+            state.providerHomescreenSections = {...state.providerHomescreenSections, [action.payload.type]: action.payload.state}
         }
     }
 })
@@ -49,6 +61,8 @@ export const
         editLoggedProviderCerField, 
         setLoggedProviderCareArea, 
         deleteloggedProviderArea,
-        editLoggedProviderPhone 
+        editLoggedProviderPhone,
+        screenChange,
+        changeEditOption
     } = providerDataSlice.actions;
 export default providerDataSlice.reducer;

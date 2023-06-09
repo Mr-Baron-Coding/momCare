@@ -10,12 +10,13 @@ import { AntDesign } from '@expo/vector-icons';
 
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteloggedProviderArea, setLoggedProviderCareArea } from '../../../Redux/features/providerDataSlice';
+import { deleteloggedProviderArea, setLoggedProviderCareArea, changeEditOption } from '../../../Redux/features/providerDataSlice';
 
 export default function CareAreaSection({ showArea, setShowArea }) {
     const pickerRef = useRef();
     const dispatch = useDispatch();
     const careAreaList = useSelector((state) => state.providerData.loggedProvider.carearea);
+    const sectionEdit = useSelector((state) => state.providerData.providerHomescreenSections.showArea);
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [cityList, setCityList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -24,10 +25,11 @@ export default function CareAreaSection({ showArea, setShowArea }) {
 
     //get list of cities API
     useEffect(() => {
-      careAreaList !== undefined && setShowArea(false);
+      // careAreaList !== undefined && setShowArea(false);
+      careAreaList.length > 0 && dispatch(changeEditOption({ type: 'showArea', state: false }));
       var data = {
         resource_id: '351d4347-8ee0-4906-8e5b-9533aef13595', // the resource id
-        limit: 1500, // get 5 results
+        limit: 1500, // get 1500 results
         // q: 'JERUSALEM' // query for 'jones'
       };
       $.ajax({
@@ -87,17 +89,16 @@ export default function CareAreaSection({ showArea, setShowArea }) {
     };
 
     const savePress = () => {
-      setShowArea(false);
-
+      dispatch(changeEditOption({ type: 'showArea', state: false }));
     };
 
     const CareAreaCard = ({ item }) =>{
       return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5, borderBottomColor: '#562349', borderBottomWidth: 1 }}>
+        <TouchableOpacity onPress={ () => handleDelete(item) } style={[sectionEdit &&{ borderBottomColor: '#562349', borderBottomWidth: 1 },{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 5}]}>
           <Text style={styles.textStyling}>{item.carearea}</Text>
-          {showArea && 
-            <TouchableOpacity onPress={ () => handleDelete(item) }><AntDesign name="delete" size={14} color="#562349"/></TouchableOpacity>}
-        </View>
+          {sectionEdit && 
+            <AntDesign name="delete" size={14} color="#562349"/>}
+        </TouchableOpacity>
       )
     };
 
@@ -109,8 +110,8 @@ export default function CareAreaSection({ showArea, setShowArea }) {
         keyExtractor={item => item.id}
         style={styles.areaContainer}
       />
-      {showArea && 
-          <View style={{ gap: 5 }}>
+      {sectionEdit && 
+          <View style={{ gap: 10 }}>
             <Text style={styles.certSectionText}>Select areas</Text>
             <Picker
               ref={pickerRef}
@@ -120,15 +121,16 @@ export default function CareAreaSection({ showArea, setShowArea }) {
             >
             { cityList.length !== 0 &&
               cityList.map((element, index) => {
-                return <Picker.Item key={index + 'City'} label={element.cityEnglish} value={element.cityEnglish} />
+                return <Picker.Item key={index + 'City'} label={element.cityEnglish} value={element.cityEnglish} color={index%2 === 0 ? '#562349' : '#FFA299'} />
               })
             }
-          </Picker>
-        </View>}
-      {showArea && 
-          <TouchableOpacity style={styles.buttonStyle} onPress={() => savePress()}>
-              <Text style={styles.buttonTextStyle}>{loading ? <ActivityIndicator size='small' color='#562349' /> : 'Save'}</Text>
-          </TouchableOpacity>}
+            </Picker>
+            <View style={{ alignItems: 'flex-end' }}>
+              <TouchableOpacity style={styles.buttonStyle} onPress={() => savePress()}>
+                  <Text style={styles.buttonTextStyle}>{loading ? <ActivityIndicator size='small' color='#562349' /> : 'Save'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>}
     </View>
   )
 }
@@ -148,7 +150,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular', 
     color: '#562349', 
     fontSize: 14,
-    textDecorationLine: 'underline',
+    textDecorationLine:  'underline',
   },
   areaContainer: {
     flexDirection: 'row',

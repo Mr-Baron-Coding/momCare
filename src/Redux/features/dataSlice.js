@@ -10,7 +10,8 @@ export const dataSlice = createSlice({
         selectedReviw: {},
         reviewsData: [],
         likeData: [],
-        messagesData: []
+        messagesData: [],
+        tabScreen: 0
     },
     reducers: {
         saveUserData: (state, action) => {
@@ -34,6 +35,9 @@ export const dataSlice = createSlice({
         saveReviewsData: (state,action) => {
             state.reviewsData = action.payload;
         },
+        addReviewToList: (state, action) => {
+            state.reviewsData = [...state.reviewsData, action.payload];
+        },
         editReviewData: (state, action) => {
             state.reviewsData.map((reviews, index) => {
                 console.log(action.payload);
@@ -49,11 +53,44 @@ export const dataSlice = createSlice({
         saveLikedata: (state, action) => {
             state.likeData = action.payload;
         },
+        //save messages threds
         saveMessageData: (state, action) => {
             state.messagesData = action.payload;
+        },
+        //start convo and add to mess data
+        startMessNAddToMessData: (state, action) => {
+            state.messagesData = [...state.messagesData, action.payload];
+        },
+        //add to convo
+        addMessageData: (state, action) => {
+            console.log(action.payload);
+            let selectedMess = state.messagesData.filter(mess => mess.messageThreadID === action.payload.key);
+            selectedMess[0].body = action.payload.body;
+            let notSelected = state.messagesData.filter(mess => mess.messageThreadID !== action.payload.key);
+            notSelected.push(selectedMess[0]);
+            state.messagesData = notSelected;
+        },
+        //change tab screen
+        changetabScreen: (state, action) => {
+            state.tabScreen = action.payload;
         }
     }
 })
 
-export const { saveUserData, saveProvidersData, saveSelectedProvider, saveSelectedCareField, saveSelectedReview, editSelectedReview, saveReviewsData, editReviewData, saveLikedata, saveMessageData } = dataSlice.actions;
+export const { 
+    saveUserData, 
+    saveProvidersData, 
+    saveSelectedProvider, 
+    saveSelectedCareField, 
+    saveSelectedReview, 
+    editSelectedReview, 
+    saveReviewsData, 
+    editReviewData, 
+    saveLikedata, 
+    saveMessageData,
+    addReviewToList,
+    startMessNAddToMessData,
+    addMessageData,
+    changetabScreen
+ } = dataSlice.actions;
 export default dataSlice.reducer;

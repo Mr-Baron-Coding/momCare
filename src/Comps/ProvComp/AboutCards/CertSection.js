@@ -8,6 +8,7 @@ import { Inter_400Regular, useFonts } from '@expo-google-fonts/inter';
 
 //redux
 import { useDispatch, useSelector } from 'react-redux';
+import { deleteloggedProviderCerFields, editLoggedProviderCerField, saveLoggedProviderCerFields, changeEditOption } from '../../../Redux/features/providerDataSlice';
 
 import { AntDesign } from '@expo/vector-icons';    
 //icons
@@ -23,17 +24,20 @@ import Homoyo from '../../../../assets/SVG/homoyphaty';
 import BabyDav from '../../../../assets/SVG/babydev';
 import PregSupport from '../../../../assets/SVG/pregsupport'
 import Presupport from '../../../../assets/SVG/presupport';
-import { deleteloggedProviderCerFields, editLoggedProviderCerField, saveLoggedProviderCerFields } from '../../../Redux/features/providerDataSlice';
 
-export default function CertSection({ showCert, setShowCert }) {
+export default function CertSection() {
     const pickerRef = useRef();
     const dispatch = useDispatch();
-    const reduxLoggedData = useSelector((state) => state.providerData.loggedProvider)
+    const reduxLoggedData = useSelector((state) => state.providerData.loggedProvider);
+    const certData = useSelector((state) => state.providerData.loggedProvider.cernqual);
+    const sectionEdit = useSelector((state) => state.providerData.providerHomescreenSections.showCert);
+
     const [loading, setLoading] = useState(false);
     const [fieldDataLoading, setDataLoading] = useState(false);
     const [certFields, setCert] = useState({fields: '', from: '', year: '', id: ''});
     const [certArray, setCertArray] = useState([]);
     const [editable, setEditable] = useState(false); 
+    const [selectable, setSelectable] = useState([]);
 
     const fieldsArray = [
         {logo: <Lac />, name: 'Lactation consultant', id: '11', visible: true}, 
@@ -51,12 +55,18 @@ export default function CertSection({ showCert, setShowCert }) {
     ];
 
     useEffect(() => {
-        setCertArray(reduxLoggedData.cernqual);
-        setCert({...certFields, year: '2010'});
-        if ( reduxLoggedData.cernqual.length > 0 ) {
-            setShowCert(false);
-        }
-    },[]);
+        let arrToShow = fieldsArray;
+        for (let index = 0; index < certData.length; index++) {
+            arrToShow = arrToShow.filter(field => field.name !== certData[index].fields);
+        };
+        certData.length === 0 ? setCert({...certFields, fields: fieldsArray[0].name, year: '2010'}) : setCert({...certFields, fields: arrToShow[0].name, year: '2010'});
+        certData.length === 0 ? setSelectable(fieldsArray) : setSelectable(arrToShow);
+    },[certData]);
+
+    useEffect(() => {
+        certData.length > 0 && dispatch(changeEditOption({ type: 'showCert', state: false }));
+        setCertArray(certData);
+    },[])
 
     
     let [fontsLoaded] = useFonts({
@@ -73,11 +83,8 @@ export default function CertSection({ showCert, setShowCert }) {
                 onValueChange={(itemValue, itemIndex) => setCert({...certFields, fields: itemValue})}
                 style={styles.fieldContainer}
             >
-                {fieldsArray.map((field, index) => {
-                    const arr = certArray.filter(item => item.fields === field.name);
-                    return(
-                        arr.length !== 1 && <Picker.Item key={field + index} label={field.name} value={field.name} color={index%2 === 0 ? '#562349' : '#FFA299'} />
-                    )
+                {selectable.map((field, index) => {
+                    return <Picker.Item key={field + index} label={field.name} value={field.name} color={index%2 === 0 ? '#562349' : '#FFA299'} />
                 })}
             </Picker>
         )
@@ -115,7 +122,7 @@ export default function CertSection({ showCert, setShowCert }) {
         })
         .then(() => {
             console.log('Saved');
-            dispatch(saveLoggedProviderCerFields(certFields));
+            dispatch(saveLoggedProviderCerFields({...certFields, id: keyVal}));
             setCert({fields: '', from: '', year: '2010', id: '' });
         })
         .then(() => {
@@ -163,7 +170,7 @@ export default function CertSection({ showCert, setShowCert }) {
     const FieldDisplay = ({item}) => {
         return (
             <TouchableOpacity style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={() => editField(item) }>
-                {showCert && 
+                {sectionEdit && 
                     <TouchableOpacity style={{ width: 20 }} onPress={ () => deleteField(item) }>
                         <AntDesign name="delete" size={14} color="#562349"/>
                     </TouchableOpacity>}
@@ -178,11 +185,23 @@ export default function CertSection({ showCert, setShowCert }) {
 
     //edit field starting func
     const editField = (field) => {
-        setShowCert(true);
+        !sectionEdit && dispatch(changeEditOption({ type: 'showCert', state: true }));
         setEditable(true);
-        setCert({fields: field.fields, from: field.from, year: field.year, id: field.id});
-        let ob = reduxLoggedData.cernqual.filter(item => item.id !== field.id);
-        setCertArray(ob);
+        //if one was selected => return it back on pressing diff cert
+        //set the display list of known cert without the selected one
+        let outForEdit = certData.filter(item => item.fields !== field.fields);
+        setCertArray(outForEdit);
+        //add the selected value to picker comp 
+        let outForSelction = fieldsArray.filter(select => select.name === field.fields);
+        if (certFields.id.length > 0) {
+            let arr = selectable.filter(item => item.name !== certFields.fields);
+            arr.push(outForSelction[0])
+            setSelectable(arr);
+        } else {
+            setSelectable([outForSelction[0], ...selectable]);
+        }
+        //prep the editeable fields
+        setCert({fields: field.fields, from: field.from, year: field.year, id: field.id}); 
     };
     //edit fields
     const handleEdit = () => {
@@ -198,12 +217,13 @@ export default function CertSection({ showCert, setShowCert }) {
             id: certFields.id
         })
         getFieldsFromDB();
-        setShowCert(false);
+        dispatch(changeEditOption({ type: 'showCert', state: false }));
         setEditable(false);
     };
     const handleCancel = () => {
-        setCertArray(reduxLoggedData.cernqual);
-        setShowCert(false);
+        console.log('canceled');
+        reduxLoggedData.cernqual !== undefined && setCertArray(reduxLoggedData.cernqual);
+        dispatch(changeEditOption({ type: 'showCert', state: false }));
         setEditable(false);
     };
     //delete field
@@ -223,7 +243,7 @@ export default function CertSection({ showCert, setShowCert }) {
 
   return (
     <View style={{ gap: 10 }}>
-        {showCert && 
+        {sectionEdit && 
         <View style={{ gap: 15 }}>
             <View style={{ gap: 5 }}>
                 <Text style={styles.certSectionText}>Select field of care</Text>
@@ -243,31 +263,31 @@ export default function CertSection({ showCert, setShowCert }) {
                 {yearPicker()}
             </View>
         </View>}
-        {(showCert && !editable)&& 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginVertical: 20 }}>
-                <TouchableOpacity style={styles.buttonStyle} onPress={(certFields.from !== '' && certFields.fields !== '' && certFields.year !== '') ? () => handleSubmit() : () => setShowCert(false) }>
+        {(sectionEdit && !editable)&& 
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+                <TouchableOpacity style={styles.buttonStyle} onPress={(certFields.from !== '' && certFields.fields !== '' && certFields.year !== '') ? () => handleSubmit() : () => handleCancel() }>
                     <Text style={styles.buttonTextStyle}>
                         {loading ? <ActivityIndicator size='small' color='#562349' /> : (certFields.from && certFields.fields && certFields.year) ? 'Save' : 'Cancel'}
                     </Text>
                 </TouchableOpacity>
             </View>}
-        {(showCert && editable)&& 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginVertical: 20 }}>
-                <TouchableOpacity style={styles.buttonStyle} onPress={() => handleEdit()}>
-                    <Text style={styles.buttonTextStyle}>
-                        {loading ? <ActivityIndicator size='small' color='#562349' /> :  'Save'}
-                    </Text>
-                </TouchableOpacity>
+        {(sectionEdit && editable)&& 
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
                 <TouchableOpacity style={styles.buttonStyle} onPress={ () => handleCancel() }>
                     <Text style={styles.buttonTextStyle}>
                        Cancel
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.buttonStyle} onPress={() => handleEdit()}>
+                    <Text style={styles.buttonTextStyle}>
+                        {loading ? <ActivityIndicator size='small' color='#562349' /> :  'Save'}
                     </Text>
                 </TouchableOpacity>
             </View>}
 
         { fieldDataLoading ? <ActivityIndicator size='large' color='#562349' /> : 
             <View>
-                {(showCert && certArray.length > 0) && <Text style={styles.certSectionText}>Your fields</Text>}
+                {sectionEdit && certData.length > 0 && <Text style={styles.certSectionText}>Your fields</Text>}
                 <FlatList 
                     data={certArray}
                     renderItem={({item}) => <FieldDisplay item={item} />}

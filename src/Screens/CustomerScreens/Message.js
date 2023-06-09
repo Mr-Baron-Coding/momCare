@@ -8,10 +8,10 @@ import MenuScreen from '../../Comps/Menu';
 import { auth } from '../../../firebase';
 import { push, ref, child, set, update } from 'firebase/database';
 import { database } from '../../../firebase';
-import { useSelector, useDispatch } from 'react-redux';
 
 //redux 
-import { saveMessageData } from '../../Redux/features/dataSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { saveMessageData, startMessNAddToMessData, addMessageData } from '../../Redux/features/dataSlice';
 
 //icons
 import { MaterialCommunityIcons } from '@expo/vector-icons'; //sent
@@ -23,18 +23,19 @@ export default function Message({ route }) {
     
     const messageData = useSelector((state) => state.data.messagesData);
     const loggedUser = useSelector((state) => state.data.userData);
+    const selectedProvider = useSelector((state) => state.data.selectedProvider);
     const [menuWindow, setMenu] = useState(false);
     const [message, setMessage] = useState('');
-    const [messageFlow, setFlow] = useState([]);
+    const [messageFlow, setFlow] = useState({});
     const [shownComp, setShownComp] = useState(0);  
     const [messCount, setMessCount] = useState(0);
 
     useEffect(() => {
         messageData.forEach(messObj => {
-            if ((messObj.fromID === auth.currentUser.uid || messObj.toID === auth.currentUser.uid) && (messObj.fromID === route.params.item.userID || messObj.toID === route.params.item.userID)) {
+            if ((messObj.fromID === auth.currentUser.uid || messObj.toID === auth.currentUser.uid) && (messObj.fromID === selectedProvider.userID || messObj.toID === selectedProvider.userID)) {
                 setFlow(messObj);
-                console.log(messObj);
                 setMessCount(messObj.body.length-1);
+                console.log(messObj);
             }
         })
     },[]);
@@ -57,29 +58,29 @@ export default function Message({ route }) {
         if ( message.length === 0 ) { return }
         const messageKey = push(child(ref(database), 'messages/')).key;
         const bodyKey = push(child(ref(database), 'messages/' + messageKey)).key;
-        setFlow([...messageFlow,
+        setFlow(
             { 
                 messageThreadID: messageKey,
-                body: [{message: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
+                body: [{body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
                 from: auth.currentUser.uid, 
-                to: route.params.item.userID, 
+                to: selectedProvider.userID, 
                 dateAdded: new Date().getTime()  
             }
-        ]);
-        dispatch(saveMessageData([ ...messageFlow,
+        );
+        dispatch(startMessNAddToMessData(
             {
                 messageThreadID: messageKey,
-                body: [{message: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
+                body: [{body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
                 from: auth.currentUser.uid, 
-                to: route.params.item.userID, 
+                to: selectedProvider.userID, 
                 dateAdded: new Date().getTime() 
             }
-        ])) 
+        )) 
         //add convo to database
         update(ref(database, 'users/messages/' + messageKey), {
             messageThreadID: messageKey,
             fromID: auth.currentUser.uid,
-            toID: route.params.item.userID,
+            toID: selectedProvider.userID,
             dateStarted: new Date().getTime()
         })
         //add message body with time to mess thread
@@ -96,7 +97,7 @@ export default function Message({ route }) {
             messageID: messageKey
         })
         //addd convo key to provider
-        update(ref(database, 'users/providers/' + route.params.item.userID + '/messages/' + messageKey), {
+        update(ref(database, 'users/providers/' + selectedProvider.userID + '/messages/' + messageKey), {
             messageID: messageKey
         })
         .catch((err) => {
@@ -115,11 +116,8 @@ export default function Message({ route }) {
                 body: [...messageFlow.body, {body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false}], 
             }
         );
-        dispatch(saveMessageData(
-            {
-                ...messageFlow,
-                body: [...messageFlow.body, {body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false}], 
-            }
+        dispatch(addMessageData(
+                {key: messageFlow.messageThreadID, body: [...messageFlow.body, {body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false}]} 
         ));
         update(ref(database, 'users/messages/' + messageFlow.messageThreadID + '/' + bodyKey), {
             body: message,
@@ -160,7 +158,7 @@ export default function Message({ route }) {
 
   return (
     <View style={{flex: 1, position: 'relative' }}>
-        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} messActive={true} provName={route.params.item.userName} />
+        <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} messActive={true} provName={selectedProvider.userName} />
         <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
         {shownComp === 0 && 
             <View style={styles.container}>

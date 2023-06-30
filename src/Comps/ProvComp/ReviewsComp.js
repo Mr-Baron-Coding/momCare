@@ -13,11 +13,31 @@ export default function ReviewsComp() {
   },[])
 
   return ( 
-    <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#FFFFFF', flex: 1 }}>
-      <Text style={{ fontFamily: 'Poppins_700bold', color: '#562349', fontSize: 16 }}>Your reviews will be shown here</Text>
-      {reviews ? <Text style={{ fontFamily: 'Quicksand', color: '#562349', fontSize: 14 }}>No reviews yet</Text> : <Text>{reviews.length}</Text>}
+    <View style={styles.container}>
+      {reviews.length === 0 && 
+      <View>
+        <Text style={styles.headerContainer}>Your reviews will be shown here</Text>
+        <Text style={styles.subHeaderText}>No reviews yet</Text>
+      </View>}
     </View>
   )
-}
+};
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 20, 
+    paddingTop: 10,
+    backgroundColor: '#FFFFFF', 
+    flex: 1
+  },
+  headerContainer: {
+    fontFamily: 'Poppins_700bold', 
+    color: '#562349', 
+    fontSize: 16
+  },
+  subHeaderText: {
+    fontFamily: 'Quicksand', 
+    color: '#562349', 
+    fontSize: 14 
+  }
+});

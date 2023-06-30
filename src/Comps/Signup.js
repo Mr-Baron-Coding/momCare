@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
 import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
-// import { ref as stRef, uploadBytes } from 'firebase/storage'
-// import { storage } from '../../firebase';
+import { ref as stRef, getDownloadURL } from 'firebase/storage'
+import { storage } from '../../firebase';
 import { auth, database } from '../../firebase';
 
 // icons
@@ -17,16 +18,29 @@ import PlaceHolderPic from '../../assets/Images/placeholder.jpg'
 
 // fonts
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
-import Footer from '../Comps/Footer';
-import UserHeader from '../Comps/CustomersComp/UserHeader';
+import Footer from './Footer';
+import UserHeader from './CustomersComp/UserHeader';
 
-export default function Signup({ navigation }) {
+export default function Signup() {
+    const navigation = useNavigation();
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
     const [userName, setUserName] = useState('');
     const [userType, setType] = useState(false);
     const [message, setMessage] = useState('');
     const [isMessageShown, setMessageShown] = useState(false);
+    // const [profPic, setProfPic] = useState('')
+
+    // useEffect(() => {
+    //     getDownloadURL(stRef(storage, 'gs://momcare-bc985.appspot.com/placeholders/placeholder.jpg'))
+    //   .then((url) => {
+    //     console.log(url);
+    //     setProfPic(url);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   })
+    // },[]);
 
     const handleSigninProvider = () => {
         // const keyVal = push(ref((database), 'users/providers/')).key;
@@ -47,7 +61,7 @@ export default function Signup({ navigation }) {
                 reviewsList: '',
                 likesList: '',
                 site: '',
-                profilePic: 'gs://momcare-bc985.appspot.com/placeholders/placeholder.jpg'
+                profilePic: ''
 
             })
         })
@@ -80,7 +94,12 @@ export default function Signup({ navigation }) {
                 usertype: 'Customer',
             })
         })
-        .then(() => { navigation.navigate('Homescreen')})
+        .then(() => {
+            console.log('User created!');
+        })
+        .then(() => { 
+            navigation.navigate('Homescreen')
+        })
         .catch((error) => {
             const errorCode = error.code;
             if ( errorCode === 'auth/wrong-password' ){
@@ -105,74 +124,69 @@ export default function Signup({ navigation }) {
   return (
     <KeyboardAvoidingView 
         style={styles.container}
+        key={'signup'}
     >
-        <UserHeader showBackIcon={true} showHeaderText={true} />
-        <View style={styles.body}>
-            <View style={{ paddingHorizontal: 20, justifyContent: 'flex-start', width: '100%' }}>
-                <Text style={styles.bodyHeader}>Welcome!</Text>
-                <Text style={styles.bodyHeader}>Signup and start your journey</Text>
-            </View>
-            <TextInput 
-                placeholder='Name*'
-                placeholderTextColor={'#C4A7B5'}
-                value={userName}
-                onChangeText={ (text) => setUserName(text) }
-                style={[styles.placeHolder, userName && styles.input]}
-            />
-            <TextInput 
-                placeholder='Email*'
-                placeholderTextColor={'#C4A7B5'}
-                value={mail}
-                onChangeText={ (text) => setMail(text) }
-                style={[styles.placeHolder, mail && styles.input]}
-            />
-            <TextInput 
-                placeholder='Password*'
-                placeholderTextColor={'#C4A7B5'}
-                value={password}
-                onChangeText={ (text) => setPassword(text) }
-                secureTextEntry
-                style={[styles.placeHolder, password && styles.input]}
-            />
-            <View style={{ flexDirection: 'row', gap: 15, height: 40, marginVertical: 10, width: '80%' }}>
-                <TouchableOpacity onPress={ () => setType(false) } style={[styles.userButton, userType ? styles.activeUserButton : styles.nonUserButton]}>
-                    <Text style={ !userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>User</Text>
-                    {!userType && <Feather name="check" size={24} color="#562349" />}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={ () => setType(true) } style={[styles.userButton, !userType ? styles.activeUserButton : styles.nonUserButton]}>
-                    <Text style={ userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>Provider</Text>
-                    {userType && <Feather name="check" size={24} color="#562349" />}
-                </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-                onPress={ userType ? () => handleSigninProvider() : () => handleSigninCustomer() }
-                style={[styles.button, styles.loginButton]}
-                
-            >
-                {!isMessageShown ? 
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={styles.loginText}>Signup</Text>
-                    <MaterialCommunityIcons name="login-variant" size={24} color="white" />
-                </View>
-                : <Text style={styles.loginText}>{message}</Text>}
-                {/* <Text style={styles.loginText}>Signup</Text>
-                <MaterialCommunityIcons name="login-variant" size={24} color="white" /> */}
+        <View style={{ paddingHorizontal: 20, justifyContent: 'flex-start', width: '100%' }}>
+            <Text style={styles.bodyHeader}>Welcome!</Text>
+            <Text style={styles.bodyHeader}>Signup and start your journey</Text>
+        </View>
+        <TextInput 
+            placeholder='Name*'
+            placeholderTextColor={'#C4A7B5'}
+            value={userName}
+            onChangeText={ (text) => setUserName(text) }
+            style={[styles.placeHolder, userName && styles.input]}
+        />
+        <TextInput 
+            placeholder='Email*'
+            placeholderTextColor={'#C4A7B5'}
+            value={mail}
+            onChangeText={ (text) => setMail(text) }
+            style={[styles.placeHolder, mail && styles.input]}
+        />
+        <TextInput 
+            placeholder='Password*'
+            placeholderTextColor={'#C4A7B5'}
+            value={password}
+            onChangeText={ (text) => setPassword(text) }
+            secureTextEntry
+            style={[styles.placeHolder, password && styles.input]}
+        />
+        <View style={{ flexDirection: 'row', gap: 15, height: 40, marginVertical: 10, width: '80%' }}>
+            <TouchableOpacity onPress={ () => setType(false) } style={[styles.userButton, userType ? styles.activeUserButton : styles.nonUserButton]}>
+                <Text style={ !userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>User</Text>
+                {!userType && <Feather name="check" size={24} color="#562349" />}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={ () => setType(true) } style={[styles.userButton, !userType ? styles.activeUserButton : styles.nonUserButton]}>
+                <Text style={ userType ? { color: '#562349', fontFamily: 'Poppins_700Bold' } : { color: '#FFFFFF', fontFamily: 'Poppins_400Regular' } }>Provider</Text>
+                {userType && <Feather name="check" size={24} color="#562349" />}
             </TouchableOpacity>
         </View>
-        <Footer />
+        <TouchableOpacity
+            onPress={ userType ? () => handleSigninProvider() : () => handleSigninCustomer() }
+            style={[styles.button, styles.loginButton]}
+            
+        >
+            {!isMessageShown ? 
+            <View style={{ flexDirection: 'row' }}>
+                <Text style={styles.loginText}>Signup</Text>
+                <MaterialCommunityIcons name="login-variant" size={24} color="white" />
+            </View>
+            : <Text style={styles.loginText}>{message}</Text>}
+            {/* <Text style={styles.loginText}>Signup</Text>
+            <MaterialCommunityIcons name="login-variant" size={24} color="white" /> */}
+        </TouchableOpacity>
     </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
         backgroundColor: '#FFFFFF',
-    },
-    body: {
-        height: '50%',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 20,
+        flex: 1
     },
     bodyHeader: {
         fontFamily: 'Quicksand',

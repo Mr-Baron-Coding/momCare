@@ -123,11 +123,12 @@ export default function CertSection() {
         .then(() => {
             console.log('Saved');
             dispatch(saveLoggedProviderCerFields({...certFields, id: keyVal}));
+            setCertArray([...certArray, {fields: certFields.fields, from: certFields.from, year: certFields.year, id: keyVal}])
             setCert({fields: '', from: '', year: '2010', id: '' });
         })
-        .then(() => {
-            getFieldsFromDB();
-        })
+        // .then(() => {
+        //     getFieldsFromDB();
+        // })
         .then(() => {
             setLoading(false);
         })
@@ -216,7 +217,7 @@ export default function CertSection() {
             year: certFields.year,
             id: certFields.id
         })
-        getFieldsFromDB();
+        // getFieldsFromDB();
         dispatch(changeEditOption({ type: 'showCert', state: false }));
         setEditable(false);
     };
@@ -233,7 +234,7 @@ export default function CertSection() {
         .then(() => {
             console.log('removed');
             setCertArray(newCertArr);
-            getFieldsFromDB();
+            // getFieldsFromDB();
             dispatch(deleteloggedProviderCerFields(newCertArr));
         }) 
         .catch((err) => {

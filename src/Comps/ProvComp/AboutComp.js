@@ -51,14 +51,15 @@ export default function AboutComp() {
     };
 
   return (
-    <View style={{flex: 1}}>
+    // <View style={{flex: 1}}>
         <FlatList 
             data={aboutList}
             keyExtractor={(item, index) => index}
             renderItem={ProfileEditCard}
             listKey='Profile'
+            style={{ flex: 1 }}
         />
-    </View>
+    // </View>
   )
 };
 

@@ -1,56 +1,107 @@
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, FlatList, ActivityIndicator } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import UserHeader from '../../Comps/CustomersComp/UserHeader';
 import MessagesScreen from './MessagesScreen';
 import LikedScreen from './LikedScreen';
 import MenuScreen from '../../Comps/Menu';
 import { auth } from '../../../firebase';
-import { push, ref, child, set, update } from 'firebase/database';
+import { push, ref, child, update, onChildAdded } from 'firebase/database';
 import { database } from '../../../firebase';
 
 //redux 
 import { useSelector, useDispatch } from 'react-redux';
-import { saveMessageData, startMessNAddToMessData, addMessageData } from '../../Redux/features/dataSlice';
+import { saveMessageData, startMessNAddToMessData, addMessageData, spliceMessages, sendMessage } from '../../Redux/features/dataSlice';
 
 //icons
 import { MaterialCommunityIcons } from '@expo/vector-icons'; //sent
 import Send from '../../../assets/SVG/UserIcons/Send';
+import { AntDesign } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons'; 
 
-export default function Message({ route }) {
+//fonts
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts, Poppins_900Black, Poppins_400Regular } from '@expo-google-fonts/poppins';
+SplashScreen.preventAutoHideAsync();
+
+export default function Message() {
     const dispatch = useDispatch();
-    const flatList = useRef();
+    const flatListRef = React.useRef(null);
     
-    const messageData = useSelector((state) => state.data.messagesData);
+    const currentMessages = useSelector((state) => state.data.selectedProvidersMessages);
     const loggedUser = useSelector((state) => state.data.userData);
     const selectedProvider = useSelector((state) => state.data.selectedProvider);
     const [menuWindow, setMenu] = useState(false);
     const [message, setMessage] = useState('');
-    const [messageFlow, setFlow] = useState({});
     const [shownComp, setShownComp] = useState(0);  
-    const [messCount, setMessCount] = useState(0);
 
+    const [isLoading, setIsLoading] = useState(false);
+    const [tempObject, setTempObject] = useState({});
+
+    const visibleItemCount = 20; // Number of initially visible items
+    const [bottomElements, setBottomElements] = useState([]); //number of messages will be rendered by flatlist
+    const [lastElmentRendered, setLastElementRendered] = useState(0);      
+
+    //load the last messages, scroll to bottom
     useEffect(() => {
-        messageData.forEach(messObj => {
-            if ((messObj.fromID === auth.currentUser.uid || messObj.toID === auth.currentUser.uid) && (messObj.fromID === selectedProvider.userID || messObj.toID === selectedProvider.userID)) {
-                setFlow(messObj);
-                setMessCount(messObj.body.length-1);
-                console.log(messObj);
-            }
-        })
-    },[]);
+        lastElmentRendered === 0 && setIsLoading(prv => prv = true);
+        lastElmentRendered === 0 && setLastElementRendered(prv => prv = 20);
+        console.log(lastElmentRendered);
+        const initialBottomElements = currentMessages.body.slice(-visibleItemCount).reverse();
+        setBottomElements(initialBottomElements);
+        // Scroll to the end of the list once it is rendered
+        flatListRef.current.scrollToEnd({ animated: true });
+        setIsLoading(prv => prv = false);
+    }, [currentMessages]);
 
-    const getMessCount = async () => {
-        return (
-            length = await messageFlow.body.length
-
-        )
+    // add more messages to render
+    const loadMoreItems = () => {
+        console.log(lastElmentRendered);
+        const threadLength = currentMessages.body.length;
+        const howManyToRender = lastElmentRendered+20; 
+        const remainingItems = currentMessages.body.slice(-(howManyToRender)).reverse();
+        setLastElementRendered(lastElmentRendered + visibleItemCount);
+        setBottomElements(prv => prv = remainingItems);
     };
 
+    // listning for new messages
     useEffect(() => {
-        console.log(messageFlow);
+        onChildAdded(ref(database, 'users/messages/' +  currentMessages.messageThreadID), (snapshot) => {
+            const data = snapshot.val();
+            let ob = {};
+            snapshot.forEach(item => {
+                ob[item.key] = item.val();
+            })
+            setTempObject(prev =>  prev = ob);
+        });
+        return(() => {
+            console.log('left message');
+            dispatch(spliceMessages());
+        })
+    }, []);
+
+    //add the new message
+    useEffect(() => {
+        if (tempObject.body !== undefined && tempObject.body.length > 0 && tempObject.sender !== auth.currentUser.uid ) {
+            tempObject.delivered = true;
+            tempObject.seen = true;
+            console.log(tempObject);
+            //send to open thread
+            dispatch(addMessageData(tempObject));
+
+            update(ref(database, 'users/messages/' +  currentMessages.messageThreadID + '/' + tempObject.bodyID), {
+                seen: true,
+                delivered: true
+            })
+            .then(() => {
+                console.log('Delivered');
+            })
+            .catch((err)=>{
+                console.log(err + 'not delivered');
+            })
+        }
         
-    },[messageFlow])
+    },[tempObject]);
 
     //start new convo
     const startConvo = () => {
@@ -58,22 +109,15 @@ export default function Message({ route }) {
         if ( message.length === 0 ) { return }
         const messageKey = push(child(ref(database), 'messages/')).key;
         const bodyKey = push(child(ref(database), 'messages/' + messageKey)).key;
-        setFlow(
-            { 
-                messageThreadID: messageKey,
-                body: [{body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
-                from: auth.currentUser.uid, 
-                to: selectedProvider.userID, 
-                dateAdded: new Date().getTime()  
-            }
-        );
         dispatch(startMessNAddToMessData(
             {
                 messageThreadID: messageKey,
-                body: [{body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false }], 
+                body: [{body: message, timestamp: new Date().getTime(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: true, seen: false }], 
                 from: auth.currentUser.uid, 
                 to: selectedProvider.userID, 
-                dateAdded: new Date().getTime() 
+                dateAdded: new Date().getTime(),
+                sendersName: loggedUser.username,
+                providersName: selectedProvider.userName
             }
         )) 
         //add convo to database
@@ -81,14 +125,16 @@ export default function Message({ route }) {
             messageThreadID: messageKey,
             fromID: auth.currentUser.uid,
             toID: selectedProvider.userID,
-            dateStarted: new Date().getTime()
+            timestamp: new Date().getTime(),
+            sendersName: loggedUser.userName,
+            providersName: selectedProvider.userName
         })
         //add message body with time to mess thread
         update(ref(database, 'users/messages/' + messageKey + '/' + bodyKey), {
             body: message,
             sender: auth.currentUser.uid,
             bodyID: bodyKey,
-            timestamp: new Date().getHours() + ':' + new Date().getMinutes(),
+            timestamp: new Date().getTime(),
             delivered: false,
             seen: false
         })
@@ -109,21 +155,16 @@ export default function Message({ route }) {
     // continue convo
     const sendMessage = () => {
         console.log('added');
-        const bodyKey = push(child(ref(database), 'messages/' + messageFlow.messageThreadID)).key;
-        setFlow( 
-            { 
-                ...messageFlow,
-                body: [...messageFlow.body, {body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false}], 
-            }
-        );
+        const bodyKey = push(child(ref(database), 'messages/' + currentMessages.messageThreadID)).key;
         dispatch(addMessageData(
-                {key: messageFlow.messageThreadID, body: [...messageFlow.body, {body: message, timeSent: new Date().getHours() + ':' + new Date().getMinutes(), bodyID: bodyKey, sender: auth.currentUser.uid, delivered: false, seen: false}]} 
+                {body: message, timestamp: new Date().getTime(), bodyID: bodyKey, senderName: currentMessages.sendersName, sender: auth.currentUser.uid, delivered: true, seen: false} 
         ));
-        update(ref(database, 'users/messages/' + messageFlow.messageThreadID + '/' + bodyKey), {
+        update(ref(database, 'users/messages/' + currentMessages.messageThreadID + '/' + bodyKey), {
             body: message,
             bodyID: bodyKey,
             sender: auth.currentUser.uid,
-            timestamp: new Date().getHours() + ':' + new Date().getMinutes(),
+            senderName: currentMessages.sendersName,
+            timestamp: new Date().getTime(),
             delivered: true,
             seen: false
         })
@@ -134,23 +175,40 @@ export default function Message({ route }) {
     };
 
     const MessCard = ({ item }) => {
+        function addZero(i) {
+            if (i < 10) {i = "0" + i}
+            return i;
+          }
+        const date = new Date(item.timestamp);
+        const minutes = addZero(date.getMinutes());
+        const houres = date.getHours();
+        const timeSent = houres + ':' + minutes;
+        const findSpace = (i) => {
+            
+            if ( i !== undefined) {
+                let y = i.slice(0,1);
+                return y
+            } else {
+                return ''
+            }
+            
+        } 
+        const name = findSpace(item.senderName);
         return (
-            <View style={styles.messCardContainer}>
+            <View style={[item.sender === auth.currentUser.uid ? styles.flipMessContainer : styles.messCardContainer]}>
                 <View style={styles.footerBox}>
-                    <Text style={styles.subTextStyle}>{loggedUser.userName}</Text>
-                    <Text>
-                        {!item.read ? !item.delivered 
-                            ? <MaterialCommunityIcons name="checkbox-blank-outline" size={24} color="black" /> 
-                            : <MaterialCommunityIcons name="checkbox-multiple-blank-outline" size={24} color="black" />
-                        : <MaterialCommunityIcons name="checkbox-multiple-marked" size={24} color="black" />
-                        }
-                    </Text>
-                                        
-
+                    <View style={styles.userNameContainer}>
+                        <Text style={styles.userTextStyle}>{name}</Text>
+                    </View>
+                    {!item.seen ? !item.delivered 
+                        ? <AntDesign name="check" size={18} color="#FFA29950" /> 
+                        : <Ionicons name="checkmark-done-outline" size={18} color="#FFA29950" />
+                    : <Ionicons name="checkmark-done-outline" size={18} color="#562349" />
+                    }
                 </View>
                 <View style={styles.messBox}>
                     <Text style={styles.messTextStyle}>{item.body}</Text>
-                    <Text style={[styles.subTextStyle, { textAlign: 'right' }]}>{item.timestamp}</Text>
+                    <Text style={[styles.subTextStyle, { textAlign: 'right' }]}>{timeSent}</Text>
                 </View>
             </View>
         )
@@ -162,15 +220,20 @@ export default function Message({ route }) {
         <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
         {shownComp === 0 && 
             <View style={styles.container}>
-                {!messageFlow ? <ActivityIndicator size='large' color='#562349' /> :
+                {Object.keys(currentMessages).length !== 0 ? 
                 <FlatList 
-                    data={messageFlow.body}
-                    // getItemCount={(data, index) => data.length}
-                    keyExtractor={item => item.bodyID}
+                    data={bottomElements}
+                    keyExtractor={(item, index) => index.toString()}
                     renderItem={({item}) => <MessCard item={item}/>}
                     style={{ width: '100%' }}
-                    contentContainerStyle={{ gap: 5, marginBottom: 5 }}
-                />}
+                    contentContainerStyle={{ gap: 5, justifyContent: 'flex-end' }}
+                    inverted={true}
+                    initialNumToRender={visibleItemCount}
+                    maxToRenderPerBatch={visibleItemCount}
+                    onEndReached={loadMoreItems}
+                    onEndReachedThreshold={0.5}
+                    ref={flatListRef}
+                /> : <Text>Nothing here</Text>}
                 <View style={styles.inputBox}>
                     <TextInput 
                         value={message}
@@ -178,7 +241,7 @@ export default function Message({ route }) {
                         style={styles.placeHolder}
                         multiline={true}
                     />
-                    <TouchableOpacity onPress={ messageFlow.messageThreadID === undefined ? () => startConvo() : () => sendMessage() }>
+                    <TouchableOpacity onPress={ Object.keys(currentMessages).length === 0 ? () => startConvo() : () => sendMessage() }>
                         <Send />
                     </TouchableOpacity>
                 </View>
@@ -217,12 +280,31 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlignVertical: 'center'
     },
+    // messages styling
     messCardContainer: {
         flexDirection: 'row',
         gap: 10
     },
+    flipMessContainer: {
+        flexDirection: 'row-reverse',
+        gap: 10
+    },
     footerBox: {
-        width: 25
+        width: 25,
+        justifyContent: 'space-between'
+    },
+    userNameContainer: {
+        height: 20,
+        width: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#562349',
+        borderRadius: 10,
+    },
+    userTextStyle: {
+        fontFamily: 'Poppins_400Regular',
+        fontSize: 10,
+        color: 'white'
     },
     messBox: {
         paddingHorizontal: 10,

@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity, Animated, TextInput } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 //rduex
 import { useSelector, useDispatch } from 'react-redux';
+import { changeHeaderElements, spliceMessages } from '../../Redux/features/dataSlice';
 
 //icons
 import Logo from '../../../assets/SVG/logo';
@@ -18,12 +19,14 @@ import Back from '../../../assets/SVG/UserIcons/back';
 import { Poppins_700Bold, Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 import { changetabScreen } from '../../Redux/features/dataSlice';
 
-export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, showHeaderText=false, setMenu, searchFieldFill='', messActive=false, provName='', isLookingAtProvider=false }) {
+export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=200, showBackIcon=false, showUserIcons=false, setMenu, searchFieldFill='', messActive=false, provName='', isLookingAtProvider=false }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const likeList = useSelector((state) => state.data.likeData);
   const loggedUser = useSelector((state) => state.data.userData);
   const selectedProvider = useSelector((state) => state.data.selectedProvider);
+  const selectedProvidersMessages = useSelector((state) => state.data.selectedProvidersMessages);
+  const tabScreen = useSelector((state) => state.data.tabScreen);
 
   const slideAnimation = useRef(new Animated.Value(heightVar)).current;
 
@@ -45,6 +48,7 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
           useNativeDriver: true,
       }).start();
       setOpenSearch(!isSearchOpen);
+      dispatch(changeHeaderElements({type: 'isSearchOpen', fields: !isSearchOpen}))
   };
 
   //  search fields
@@ -75,17 +79,28 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
     )
 };
 
+const goToMessScreen = () => {
+  // if ( selectedProvidersMessages.dateStarted !== undefined ) {
+  //   dispatch(spliceMessages());
+  // }
+  // dispatch(spliceMessages());
+  navigation.navigate('MessagesScreen');
+
+};
+
   return (
     <View style={[styles.headerContainer, {height: slideAnimation.interpolate({inputRange: [0,1], outputRange: [heightVar, 200]}) } ]}>
       {showBackIcon && 
-        <TouchableOpacity style={{ position: 'absolute', top: 20, left: 20, zIndex: 5 }} onPress={ () => navigation.goBack()}>
+        <TouchableOpacity style={{ position: 'absolute', top: 20, left: 20, zIndex: 5 }} onPress={ tabScreen === 0 ? () => navigation.goBack() : () => dispatch(changetabScreen(0)) }>
           <Back />
         </TouchableOpacity>}
       {showUserIcons && 
         <View style={styles.iconRow}>
           <TouchableOpacity onPress={ () => slide(isSearchOpen ? 1 : 0) }><Search /></TouchableOpacity>
-          <TouchableOpacity onPress={ () => dispatch(changetabScreen(1)) }><Mail /></TouchableOpacity>
-          <TouchableOpacity onPress={ () => dispatch(changetabScreen(2)) }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity>
+          {/* <TouchableOpacity onPress={ () => dispatch(changetabScreen(1)) }><Mail /></TouchableOpacity> */}
+          <TouchableOpacity onPress={ () => goToMessScreen() }><Mail /></TouchableOpacity>
+          {/* <TouchableOpacity onPress={ () => dispatch(changetabScreen(2)) }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity> */}
+          <TouchableOpacity onPress={ () => navigation.navigate('LikedScreen') }><Heart color={ likeList.length > 0 ? '#562349' : 'white' } /></TouchableOpacity>
           <TouchableOpacity onPress={ () => setMenu(true)}><MenuIcon /></TouchableOpacity>
         </View>}
         {/* logog container */}
@@ -94,17 +109,11 @@ export default function UserHeader({ heightVar=200, logoHeight=100, logoWidth=20
           <Logo height={logoHeight} width={logoWidth} />
         </TouchableOpacity>
       </View>
-      {/* show the header on login pages */}
-      {showHeaderText &&
-        <View>
-          <Text style={styles.headerH1}>Be sure of your caregiver</Text>
-          <Text style={styles.headerH2}>The care you need, with peace of mind.</Text>
-        </View>}
         {/* show serach */}
       {isSearchOpen && searchBox()}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {/* show user name */}
-        {(!showHeaderText && loggedUser.userName !== '') 
+        {(!isSearchOpen && loggedUser.userName !== '') 
         && <Text style={styles.bottomHeaderTextStyle}>{`Hi ${loggedUser.userName}`}</Text>}
         {/* show incase checking provider */}
         {isLookingAtProvider && <Text style={styles.bottomHeaderTextStyle}>u are checking out {selectedProvider.userName}</Text>}

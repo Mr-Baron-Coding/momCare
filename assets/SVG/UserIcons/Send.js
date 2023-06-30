@@ -7,7 +7,7 @@
 import React from 'react'
 import Svg, { Path, Circle } from 'react-native-svg'
 
-export default function Search({ width = '30', height = "30", color = 'white', stroke = '#562349', strokeWidth = '1.5', strokeLinejoin = 'round', strokeLinecap = 'round' }) {
+export default function Send({ width = '30', height = "30", color = 'white', stroke = '#562349', strokeWidth = '1.5', strokeLinejoin = 'round', strokeLinecap = 'round' }) {
   return (
     <Svg width={width} height={height} viewBox="0 2 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* <Rect 

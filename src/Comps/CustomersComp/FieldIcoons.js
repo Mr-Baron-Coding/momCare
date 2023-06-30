@@ -80,14 +80,13 @@ export default function FieldIcoons() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-     paddingHorizontal: 20
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   bodyHeader: {
-      fontFamily: 'Poppins_700Bold', 
-      color: '#562349',
-      height: '5%',
-      marginTop: 10,
-      marginBottom: 10
+    fontFamily: 'Poppins_700bold',
+    color: '#562349',
+    fontSize: 16
   },
   fieldItems: {
       borderColor: '#C4A7B5',

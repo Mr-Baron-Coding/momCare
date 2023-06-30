@@ -44,7 +44,7 @@ export default function ProfileAddReview({ addReview, setAddReview, providerID, 
             setSelectedField(reviewState[0].selectedField);
             setStars(reviewState[0].reviewScore);
         } else {
-            setSelectedField(selectedProvider.cernqual[0].fields);
+            selectedProvider.cernqual.length > 0 && setSelectedField(selectedProvider.cernqual[0].fields);
         }
         console.log(reviewState[0]);
         
@@ -129,7 +129,7 @@ export default function ProfileAddReview({ addReview, setAddReview, providerID, 
     };
 
   return ( 
-    selectedProvider.cernqual === undefined 
+    selectedProvider.cernqual.length === 0 
         ? <View style={styles.container}>
             <Text style={styles.certSectionText}>Unable To review</Text>
             <Text style={styles.certSectionText}>Provider have no certifications</Text>

@@ -62,9 +62,17 @@ export default function Homescreen() {
                           messList.push(area.key);
                           arr['messages'] = messList;
                       })
+                      let reviewList = [];
+                      item.key === 'reviewsList' && item.forEach(area => {
+                          reviewList.push(area.key);
+                          arr['reviewsList'] = reviewList;
+                    })
                   }
               });
               if (arr['reviewsList'] === undefined )  arr['reviewsList'] = [];
+              if (arr['cernqual'] === undefined )  arr['cernqual'] = [];
+              if (arr['carearea'] === undefined )  arr['carearea'] = [];
+              if (arr['messages'] === undefined )  arr['messages'] = [];
               arrList.push(arr);
               arr = {};
           })
@@ -187,15 +195,14 @@ const Data = [
     <View style={styles.container}>
       <UserHeader heightVar={100} logoHeight={50} logoWidth={100} showBackIcon={true} showUserIcons={true} setMenu={setMenu} />
       <MenuScreen menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
-      {tabScreen === 0 && 
-        <FlatList
-          data={Data}
-          renderItem={({item}) => item.screen}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{ gap: 10 }}
-        />}
-      {tabScreen === 1 && <MessagesScreen />}
-      {tabScreen === 2 && <LikedScreen />}
+      <FlatList
+        data={Data}
+        renderItem={({item}) => item.screen}
+        keyExtractor={item => item.id + '_screen'}
+        contentContainerStyle={{ gap: 10 }}
+      />
+      {/* {tabScreen === 1 && <MessagesScreen />}
+      {tabScreen === 2 && <LikedScreen />} */}
     </View>
   )
 };

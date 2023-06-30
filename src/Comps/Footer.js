@@ -15,18 +15,18 @@ export default function Footer() {
 
   return (
     <View style={styles.footer}>
-        <View style={styles.footerOptions}>
+        {/* <View style={styles.footerOptions}>
             <Text style={{ fontFamily: 'Quicksand' }}>Feedback</Text>
-                <Divider width={3} color={'#562349'} style={{ marginVertical: 20, height: '70%' }} orientation="vertical" />
+                <Divider width={3} color={'#562349'} style={{ marginVertical: 20, height: '70%' }} orientation='vertical' />
             <Text style={{ fontFamily: 'Quicksand' }}>Regulations</Text>
                 <Divider width={3} color={'#562349'} style={{ marginVertical: 20, height: '70%' }} orientation="vertical" />
             <Text style={{ fontFamily: 'Quicksand' }}>Privacy Policy</Text>
-        </View>
+        </View> */}
         <View style={styles.custBottom}>
             <Text style={styles.custFont}>Customer service</Text>
-            <Text style={styles.fontStyling}>info@momcare.com</Text>
-            <Text style={styles.fontStyling}>Sunday to Thursday 9:00-17:00</Text>
-            <Text style={styles.fontStyling}>*5544</Text>
+            <Text style={styles.fontStyling}>support@momcare.com</Text>
+            {/* <Text style={styles.fontStyling}>Sunday to Thursday 9:00-17:00</Text> */}
+            {/* <Text style={styles.fontStyling}>*5544</Text> */}
         </View>
     </View>
   )
@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
         fontWeight: '300',
         fontSize: 12,
         color: '#562349',
-        width: '90%',
         flexDirection: 'row',
         alignItems: 'center', 
         justifyContent: 'space-around'

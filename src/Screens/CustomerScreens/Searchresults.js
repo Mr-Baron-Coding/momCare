@@ -162,6 +162,7 @@ export default function Searchresults() {
                 renderItem={({item}) => <ProvCard item={item} />}
                 keyExtractor={(item, id) => id}
                 initialNumToRender={5}
+                contentContainerStyle={{ gap: 10 }}
             />
         </View>
         }
@@ -183,8 +184,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         backgroundColor: '#FFFFFF',
         height: 150,
-        marginVertical: 10,
-        paddingHorizontal: 15,
+        paddingHorizontal: 20,
         
     },
     cardTextTop: {

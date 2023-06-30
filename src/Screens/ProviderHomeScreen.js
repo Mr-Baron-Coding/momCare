@@ -10,10 +10,10 @@ import Menu from '../Comps/Menu';
 
 //redux
 import { useDispatch, useSelector } from 'react-redux';
-import { screenChange } from '../Redux/features/providerDataSlice';
+import { screenChange, saveProviderMessages } from '../Redux/features/providerDataSlice';
 
 //firebase
-import { ref, get } from "firebase/database";
+import { ref, get, onChildChanged, off, query, equalTo, child } from "firebase/database";
 import { database } from '../../firebase';
 import { auth } from '../../firebase';
 
@@ -26,7 +26,7 @@ export default function ProviderHomeScreen() {
   const tabNavScreens = useSelector((state) => state.providerData.tabNavScreens);
   const [isLoading, setLoading] = useState(true);
   const [menuWindow, setMenu] = useState(false);
-  const [shownComp, setShownComp] = useState(0);
+  // const [shownComp, setShownComp] = useState(0);
   
     useEffect(() => {
       setLoading(true);
@@ -45,13 +45,14 @@ export default function ProviderHomeScreen() {
               items.forEach(arr => {
                 //check messages
                 if ( items.key === 'messages' ) {
-                  let listOfMessages = [];
+                  // let listOfMessages = [];
                   arr.forEach(eachMess => {
                     let ob = {}
                     ob[eachMess.key] = eachMess.val();
-                    listOfMessages.push(ob);
+                    // listOfMessages.push(ob);
+                    provObj['messages'].push(ob);
                   })
-                  provObj['messages'] = listOfMessages;
+                  // provObj['messages'].push(ob);
                 }
                 //check for certifications
                 if ( items.key === 'cernqual' ) {
@@ -88,7 +89,11 @@ export default function ProviderHomeScreen() {
               })
             }
           })
+          if (provObj['messages'] === undefined) provObj['messages'] = [];
           dispatch(saveLoggedProviderData(provObj));
+          if ( provObj['messages'].length !== 0) {
+            retriveMessages(provObj['messages']);
+          }
           setTimeout(() => {
             setLoading(false);
 
@@ -101,6 +106,45 @@ export default function ProviderHomeScreen() {
       });
     },[]);
 
+    const retriveMessages = (messagesID) => {
+      let messList = [];
+      get(ref(database, 'users/messages/')).then((snap) => {
+        if(snap.exists()) {
+          snap.forEach(thread => {
+            // console.log(thread.key);
+            for(let i=0; i<=messagesID.length-1; i++){
+              if (thread.key === messagesID[i].messageID){
+                let threadOb = {};
+                let bodyArr = [];
+                thread.forEach(threadComp => {
+                  if ( threadComp.hasChildren() ) {
+                    //message thread messages
+                    let ob = {};
+                    threadComp.forEach(messBody => {
+                      ob[messBody.key] = messBody.val();
+                      
+                    })
+                    bodyArr.push(ob);
+                    threadOb['body'] = bodyArr;
+                  } else {
+                    //base info 
+                    threadOb[threadComp.key] = threadComp.val();
+                  }
+                })
+                messList.push(threadOb);
+              }
+            }
+          })
+        } else {
+          console.log('There are no messages');
+        }
+        dispatch(saveProviderMessages(messList));
+      })
+      .catch((err) => {
+        console.log(err + 'No messages retrived');
+      })
+    }
+
     let [fontsLoaded] = useFonts({
       Poppins_700Bold, Poppins_400Regular,
       });
@@ -108,10 +152,24 @@ export default function ProviderHomeScreen() {
           return null;
     };
 
+    onChildChanged(ref(database, 'users/providers' + auth.currentUser.uid + '/messages'), (snap) => {
+      if ( snap.exists() ) {
+        console.log(snap.val());
+      }
+      else {
+        console.log('Error');
+      }
+      return unsub = off();
+      
+      // .catch((err) => {
+      //   console.log(err + "Can't update");
+      // })
+    })
+
   return (
-    <View style={{ backgroundColor: '#F1F1F1', gap: 5, flex: 1, height: '100%', justifyContent: 'space-between' }}>
+    <View style={{ backgroundColor: '#F1F1F1', flex: 1, height: '100%', justifyContent: 'space-between' }}>
       <Menu menuWindow={menuWindow} closeMenu={ () => setMenu(false) } />
-      <ProviderHeader showBackIcon={false} setMenu={setMenu} setShownComp={(x) => setShownComp(x)} />
+      <ProviderHeader showBackIcon={false} setMenu={setMenu} />
       { !isLoading ? 
       <View style={{ flexGrow: 1 }}>
         <View style={styles.selectTabs}>

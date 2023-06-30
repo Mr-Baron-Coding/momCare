@@ -4,6 +4,9 @@ export const providerDataSlice = createSlice({
     name: 'providerData',
     initialState: {
         loggedProvider: {},
+        messagesForProvider: [],
+        // talkingTOUser: {},
+        selectedMessThread: {},
         tabNavScreens: 1,
         providerHomescreenSections: { 
             showAbout: true, 
@@ -28,9 +31,7 @@ export const providerDataSlice = createSlice({
                                     };
         },
         editLoggedProviderCerField: (state, action) => {
-            state.loggedProvider = {...state.loggedProvider, 
-                                        cernqual: action.payload
-                                    };
+            state.loggedProvider = {...state.loggedProvider, cernqual: [...state.loggedProvider.cernqual, action.payload]};
         },
         setLoggedProviderCareArea: (state, action) => {
             state.loggedProvider.carearea === undefined ? 
@@ -44,11 +45,30 @@ export const providerDataSlice = createSlice({
         editLoggedProviderPhone: (state, action) => {
             state.loggedProvider = { ...state.loggedProvider, [action.payload.type]: action.payload.field }
         },
+        saveProviderMessages: (state, action) => {
+            state.messagesForProvider = action.payload;
+        },
+        updateProvidersMessages: (state, action) => {
+            state.messagesForProvider = [state.selectedMessThread, ...state.messagesForProvider];
+            state.selectedMessThread = {};
+
+        },
         screenChange: (state, action) => {
             state.tabNavScreens = action.payload;
         },
         changeEditOption: (state, action) => {
             state.providerHomescreenSections = {...state.providerHomescreenSections, [action.payload.type]: action.payload.state}
+        },
+        saveSelectedMessThread: (state, action) => {
+            // save the specific mess thread
+            state.selectedMessThread = action.payload;
+            //remove that thread from rest and save the, separately
+            state.messagesForProvider = state.messagesForProvider.filter(thread => thread.messageThreadID !== action.payload.messageThreadID);
+        },
+        sendMessage: (state, action) => {
+            let arr = state.selectedMessThread.body;
+            arr.push(action.payload);
+            state.selectedMessThread = {...state.selectedMessThread, body: arr};
         }
     }
 })
@@ -62,7 +82,12 @@ export const
         setLoggedProviderCareArea, 
         deleteloggedProviderArea,
         editLoggedProviderPhone,
+        saveProviderMessages,
+        updateProvidersMessages,
         screenChange,
-        changeEditOption
+        changeEditOption,
+        saveUsersDetailsForConvo,
+        saveSelectedMessThread,
+        sendMessage
     } = providerDataSlice.actions;
 export default providerDataSlice.reducer;

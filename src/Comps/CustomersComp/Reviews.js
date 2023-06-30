@@ -32,6 +32,7 @@ export default function Reviews() {
     };
 
     const ProCard = ({ item }) => {
+        console.log(item);
         return(
             <TouchableOpacity style={styles.profCard} onPress={ () => handleMove(item) }>
                 <Image 
@@ -67,13 +68,13 @@ export default function Reviews() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
-        flex: 1,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
     bodyHeader: {
-        fontFamily: 'Poppins_700Bold', 
+        fontFamily: 'Poppins_700bold',
         color: '#562349',
-        marginTop: 10
+        fontSize: 16
     },
     profCard: {
         backgroundColor: '#F0F1F1',

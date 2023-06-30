@@ -55,15 +55,13 @@ export default function News() {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#FFFFFF',
-        textAlign: 'left',
-        flex: 1,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
     bodyHeader: {
-        fontFamily: 'Poppins_700Bold', 
+        fontFamily: 'Poppins_700bold',
         color: '#562349',
-        marginTop: 10,
-        marginBottom: 10
+        fontSize: 16
     },
     artiCard: {
         width: '95%',
